@@ -9,7 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.io.BufferedInputStream;
@@ -100,13 +101,17 @@ public class GoToPosition {
 
 
 
-    public static void goToPosition(double x, double y, double heading, double stoppingDistance, Odometry odometry, DcMotor frontLeft, DcMotor backLeft, DcMotor frontRight, DcMotor backRight, Telemetry t, double power) {
+    public static void goToPosition(double x, double y, double heading, double stoppingDistance,GoBildaPinpointDriver odo, DcMotor frontLeft, DcMotor backLeft, DcMotor frontRight, DcMotor backRight, Telemetry t, double power) {
         //stop
 
         long start = System.currentTimeMillis();
-        double currentX = odometry.getXCoordinate();
-        double currentY = odometry.getYCoordinate();
-        double currentHeading = odometry.getHeading();
+//       double currentX = odometry.getXCoordinate();
+//        double currentY = odometry.getYCoordinate();
+//        double currentHeading = odometry.getHeading();
+        Pose2D pos = odo.getPosition();
+        double currentX = pos.getX(DistanceUnit.INCH);
+        double currentY = pos.getY(DistanceUnit.INCH);
+        double currentHeading = pos.getHeading(AngleUnit.DEGREES);
 
         double differenceInX = x - currentX;
         double differenceInY = y - currentY;
@@ -118,9 +123,10 @@ public class GoToPosition {
         while (totalDistance > .7 && System.currentTimeMillis()-start < 5000) {
             t.addData("TD", totalDistance);
             //get starting position
-            currentX = odometry.getXCoordinate();
-            currentY = odometry.getYCoordinate();
-            currentHeading = odometry.getHeading();
+           pos = odo.getPosition();
+             currentX = pos.getX(DistanceUnit.INCH);
+             currentY = pos.getY(DistanceUnit.INCH);
+             currentHeading = pos.getHeading(AngleUnit.DEGREES);
 
             //find the difference in the x and y
             differenceInX = x - currentX;
@@ -186,9 +192,14 @@ public class GoToPosition {
             frontRight.setPower(motorOutputs[2] * power);
             backRight.setPower(motorOutputs[3] * power);
 
-            t.addData("XCoord", odometry.getXCoordinate());
-            t.addData("YCoord", odometry.getYCoordinate());
-            t.addData("Heading", odometry.getHeading());
+            pos = odo.getPosition();
+            currentX = pos.getX(DistanceUnit.INCH);
+            currentY = pos.getY(DistanceUnit.INCH);
+            currentHeading = pos.getHeading(AngleUnit.DEGREES);
+
+            t.addData("XCoord", pos.getX(DistanceUnit.INCH));
+            t.addData("YCoord",  pos.getY(DistanceUnit.INCH));
+            t.addData("Heading", pos.getHeading(AngleUnit.DEGREES));
 
             t.update();
 

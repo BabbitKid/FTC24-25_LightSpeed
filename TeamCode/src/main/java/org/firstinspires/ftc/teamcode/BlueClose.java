@@ -64,6 +64,8 @@ public class BlueClose extends LinearOpMode {
         planeServo = hardwareMap.servo.get("plane");
         rotateServo = hardwareMap.servo.get("rotate");
         odo = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
+        odo.setOffsets(188.7, 0); //Check Y
+        odo.setEncoderResolution(13.26291192); // Not true https://www.revrobotics.com/rev-11-1271/
 
 
         Pose2D pos = odo.getPosition();
@@ -106,9 +108,9 @@ public class BlueClose extends LinearOpMode {
         if (opModeIsActive()) {
             odo.update();
 
-                    GoToPosition.goToPosition(4, -27, 0, 3, odometry, leftFront, leftBack, rightFront, rightBack, telemetry, .45);
-                    GoToPosition.goToPosition(0, -17, 0, 3, odometry, leftFront, leftBack, rightFront, rightBack, telemetry, .45);
-                    GoToPosition.goToPosition(32.75, -20, -91, 3, odometry, leftFront, leftBack, rightFront, rightBack, telemetry, .45);
+                    GoToPosition.goToPosition(4, -27, 0, 3, odo, leftFront, leftBack, rightFront, rightBack, telemetry, .45);
+                    GoToPosition.goToPosition(0, -17, 0, 3, odo, leftFront, leftBack, rightFront, rightBack, telemetry, .45);
+                    GoToPosition.goToPosition(32.75, -20, -91, 3, odo, leftFront, leftBack, rightFront, rightBack, telemetry, .45);
 
                     leftFront.setPower(0);
             leftBack.setPower(0);
@@ -133,7 +135,7 @@ public class BlueClose extends LinearOpMode {
             while (Math.abs(slideMotor.getCurrentPosition() - convertDegreesToEncoderTicks(0)) > convertDegreesToEncoderTicks(20) && opModeIsActive()   ) {
 
             }
-            GoToPosition.goToPosition( 30, -8, -93, 3, odometry, leftFront, leftBack, rightFront, rightBack, telemetry, .45);
+            GoToPosition.goToPosition( 30, -8, -93, 3, odo, leftFront, leftBack, rightFront, rightBack, telemetry, .45);
 
         }
 
