@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -41,9 +42,11 @@ import java.util.Arrays;
 public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
 
     // Declare Motors, Servos, etc.
-    private static DcMotor leftFront, leftBack, rightFront, rightBack, slideMotor;
+    private static DcMotor leftFront, leftBack, rightFront, rightBack, slideMotor, hangMotor;
 
-    private Servo intake, intakeArm, intakeSlides,fourBar, dropper;
+    private Servo  intakeArm, intakeSlides,fourBar, dropper, grabby, hangRelease;
+
+    private CRServo intake;
     private static double leftJoystickX, leftJoystickY, rightJoystickX, rightJoystickY;
     private static double leftFrontPower, leftBackPower, rightBackPower, rightFrontPower;
     private double ENCODER_TICKS_PER_ROTATION = 1120 * (2.0/3);
@@ -60,12 +63,15 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
         leftBack = hardwareMap.dcMotor.get("backLeft");
         rightFront = hardwareMap.dcMotor.get("frontRight");
         rightBack = hardwareMap.dcMotor.get("backRight");
-        intake = hardwareMap.servo.get("intake");
+        intake = hardwareMap.crservo.get("intake");
         intakeArm = hardwareMap.servo.get("intakeArm");
         intakeSlides = hardwareMap.servo.get("intakeSlides");
         fourBar = hardwareMap.servo.get("fourBar");
         dropper = hardwareMap.servo.get("dropper");
         slideMotor = hardwareMap.dcMotor.get("vertSlides");
+        //grabby = hardwareMap.servo.get("grabby");
+        hangRelease = hardwareMap.servo.get("hangRelease");
+        hangMotor = hardwareMap.dcMotor.get("hangMotor");
 
 
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -73,14 +79,19 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         slideMotor.setTargetPosition(convertDegreesToEncoderTicks(90));
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         waitForStart();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
+            //grabby.setPosition(.47);
+
             slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             slideMotor.setPower(.75);
+
 
             leftJoystickX = gamepad1.left_stick_x;
             leftJoystickY = gamepad1.left_stick_y;
@@ -134,19 +145,23 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
 
 
             if (gamepad2.left_trigger > .5) {
-                intakeArm.setPosition(.64); //full down
+                intakeArm.setPosition(.58); //full down
             }
             if (gamepad2.left_bumper) {
-                intakeArm.setPosition(.51); //hover arm
+                intakeArm.setPosition(.49); //hover arm
             }
 
             if (gamepad2.b) {
-                intakeArm.setPosition(0); //full in robot
+                intakeArm.setPosition(.038); //full in robot
             }
             if (gamepad2.right_trigger > .1) {
-                intake.setPosition(0); //grab
-            } else {
-                intake.setPosition(1); //release
+                intake.setPower(1); //grab
+            }
+            if (gamepad2.right_bumper) {
+                intake.setPower(-1); //release
+            }
+            if (gamepad2.x){
+                intake.setPower(0);
             }
             if (gamepad2.dpad_down) {
                 intakeSlides.setPosition(.28); //slides in robot
@@ -154,21 +169,45 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
             if (gamepad2.dpad_up) {
                 intakeSlides.setPosition(.69); //slides extended
             }
-            if (gamepad2.x) {
+            if (gamepad2.dpad_right) {
+                intakeArm.setPosition(intakeArm.getPosition()-.05);
+            }
+            //if (gamepad2.x) {
+            //    grabby.setPosition(.25);
+            //}
+            //if (gamepad2.dpad_right) {
+            //    grabby.setPosition(.45);
+            //}
+            if (gamepad1.x) {
+                hangRelease.setPosition(0);
+            }
+            if (gamepad1.y){
+                hangRelease.setPosition(.55);
+            }
+            if (gamepad1.b){
+                hangRelease.setPosition(.85);
+            }
+            if (gamepad1.dpad_up){
+                hangMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+                hangMotor.setPower(.75);
+            }
+            if (gamepad1.dpad_down){
+                hangMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+                hangMotor.setPower(.75);
+            }
 
+            if (gamepad1.dpad_right) {
+                hangMotor.setPower(0);
             }
 
 
-            // zero out the slides position
-            /**if (gamepad1.b) {
-                slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            }*/
+
 
 
 
             if (gamepad2.y) {
                 slideMotor.setPower(.75);
-                slideMotor.setTargetPosition(5500);
+                slideMotor.setTargetPosition(6800);
             }
             if (gamepad2.a) {
                 slideMotor.setPower(.5);
@@ -180,20 +219,8 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
             }
 
 
-            /**if (gamepad2.dpad_right){
-                slideMotor.setTargetPosition(slideMotor.getCurrentPosition()+convertDegreesToEncoderTicks(20));
-            }
-            if (gamepad2.dpad_left){
-                slideMotor.setTargetPosition(slideMotor.getCurrentPosition()-convertDegreesToEncoderTicks(20));
-            }
-            if (gamepad1.dpad_up){
-                slideMotor.setTargetPosition(slideMotor.getCurrentPosition()+convertDegreesToEncoderTicks(20));
-            }
-            if (gamepad1.dpad_down){
-                slideMotor.setTargetPosition(slideMotor.getCurrentPosition()-convertDegreesToEncoderTicks(20));
-            }*/
-
             telemetry.addData("currentMotorPosition", slideMotor.getCurrentPosition());
+            //telemetry.addData("servo pos", .getPosition());
             telemetry.update();
 
 

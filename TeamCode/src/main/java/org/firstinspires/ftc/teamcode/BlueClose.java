@@ -9,7 +9,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pipelines.BlueConeDetectionPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -19,13 +22,21 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 import org.firstinspires.ftc.teamcode.pipelines.BlueConeDetectionPipeline;
 
+import java.util.Locale;
+
 
 @Autonomous(name="BlueClose", group="Robot")
 @Config
 
 public class BlueClose extends LinearOpMode {
-    private DcMotor verticalLeft, verticalRight, horizontal, leftBack, leftFront,rightFront, rightBack,slideMotor;
+    private DcMotor verticalLeft, verticalRight, horizontal;
 
+    private static DcMotor leftFront, leftBack, rightFront, rightBack, slideMotor;
+
+    private Servo intake, intakeArm, intakeSlides,fourBar, dropper, grabby;
+    private static double leftJoystickX, leftJoystickY, rightJoystickX, rightJoystickY;
+    private static double leftFrontPower, leftBackPower, rightBackPower, rightFrontPower;
+    
     private Servo autoDrop;
     private Servo dropperServo, planeServo, rotateServo;
     GoBildaPinpointDriver odo;
@@ -58,49 +69,41 @@ public class BlueClose extends LinearOpMode {
         leftBack = hardwareMap.dcMotor.get("backLeft");
         rightFront = hardwareMap.dcMotor.get("frontRight");
         rightBack = hardwareMap.dcMotor.get("backRight");
-        autoDrop = hardwareMap.servo.get("autoDrop");
-        slideMotor = hardwareMap.dcMotor.get("slideMotor");
-        dropperServo = hardwareMap.servo.get("dropper");
-        planeServo = hardwareMap.servo.get("plane");
-        rotateServo = hardwareMap.servo.get("rotate");
+        intake = hardwareMap.servo.get("intake");
+        intakeArm = hardwareMap.servo.get("intakeArm");
+        intakeSlides = hardwareMap.servo.get("intakeSlides");
+        fourBar = hardwareMap.servo.get("fourBar");
+        dropper = hardwareMap.servo.get("dropper");
+        slideMotor = hardwareMap.dcMotor.get("vertSlides");
+        grabby = hardwareMap.servo.get("grabby");
+
+
+        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideMotor.setTargetPosition(convertDegreesToEncoderTicks(0));
+        slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        //rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        //rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        slideMotor.setTargetPosition(convertDegreesToEncoderTicks(90));
+
+
         odo = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
         odo.setOffsets(188.7, 0); //Check Y
-        odo.setEncoderResolution(13.26291192); // Not true https://www.revrobotics.com/rev-11-1271/
+        odo.setEncoderResolution(44.9585273728); // Not true https://www.revrobotics.com/rev-11-1271/
+        //odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
 
         Pose2D pos = odo.getPosition();
-        verticalLeft = hardwareMap.dcMotor.get(verticalLeftEncoderName);
-        verticalRight = hardwareMap.dcMotor.get(verticalRightEncoderName);
-        horizontal = hardwareMap.dcMotor.get(horizontalEncoderName);
 
-        horizontal.setDirection(DcMotorSimple.Direction.REVERSE);
-        verticalRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
-        Odometry odometry = new Odometry(verticalLeft, verticalRight, horizontal);
-        Thread positionUpdate = new Thread(odometry);
-
-        positionUpdate.start();
 
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideMotor.setTargetPosition(0);
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideMotor.setPower(.75);
+        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
-
-
-
-
-
-
-
-
-        while (!opModeIsActive()) {
-            //init
-        }
-
-        autoDrop.setPosition(0.625);
-
+        odo.resetPosAndIMU();
 
         waitForStart();
 
@@ -108,34 +111,12 @@ public class BlueClose extends LinearOpMode {
         if (opModeIsActive()) {
             odo.update();
 
-                    GoToPosition.goToPosition(4, -27, 0, 3, odo, leftFront, leftBack, rightFront, rightBack, telemetry, .45);
-                    GoToPosition.goToPosition(0, -17, 0, 3, odo, leftFront, leftBack, rightFront, rightBack, telemetry, .45);
-                    GoToPosition.goToPosition(32.75, -20, -91, 3, odo, leftFront, leftBack, rightFront, rightBack, telemetry, .45);
+            GoToPositionOld.GoToPositionCall(10,10,90,.5,3, odo, leftFront, rightFront, leftBack, rightBack, telemetry);
 
-                    leftFront.setPower(0);
+            leftFront.setPower(0);
             leftBack.setPower(0);
             rightFront.setPower(0);
             rightBack.setPower(0);
-            slideMotor.setTargetPosition(convertDegreesToEncoderTicks(860));
-            while (Math.abs(slideMotor.getCurrentPosition() - convertDegreesToEncoderTicks(860)) > convertDegreesToEncoderTicks(20) && opModeIsActive()) {
-
-            }
-            rotateServo.setPosition(.15);
-            sleep(1000);
-            dropperServo.setPosition(.0);
-            sleep(1000);
-            rotateServo.setPosition(.08);
-            sleep(1000);
-            dropperServo.setPosition(.3);
-            sleep(1000);
-            rotateServo.setPosition(0);
-            sleep(1000);
-            dropperServo.setPosition(.3);
-            slideMotor.setTargetPosition(convertDegreesToEncoderTicks(0));
-            while (Math.abs(slideMotor.getCurrentPosition() - convertDegreesToEncoderTicks(0)) > convertDegreesToEncoderTicks(20) && opModeIsActive()   ) {
-
-            }
-            GoToPosition.goToPosition( 30, -8, -93, 3, odo, leftFront, leftBack, rightFront, rightBack, telemetry, .45);
 
         }
 
@@ -143,6 +124,7 @@ public class BlueClose extends LinearOpMode {
     public int convertDegreesToEncoderTicks(double degrees) {
         return (int) (degrees / 360 * ENCODER_TICKS_PER_ROTATION);
     }
+
 
 }
 

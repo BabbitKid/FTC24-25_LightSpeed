@@ -36,7 +36,6 @@ This opmode shows how to use the goBILDA® Pinpoint Odometry Computer.
 The goBILDA Odometry Computer is a device designed to solve the Pose Exponential calculation
 commonly associated with Dead Wheel Odometry systems. It reads two encoders, and an integrated
 system of senors to determine the robot's current heading, X position, and Y position.
-
 it uses an ESP32-S3 as a main cpu, with an STM LSM6DSV16X IMU.
 It is validated with goBILDA "Dead Wheel" Odometry pods, but should be compatible with any
 quadrature rotary encoder. The ESP32 PCNT peripheral is speced to decode quadrature encoder signals
@@ -165,7 +164,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
             gets the current Position (x & y in mm, and heading in degrees) of the robot, and prints it.
              */
             Pose2D pos = odo.getPosition();
-            String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
+            String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Position", data);
 
             /*
