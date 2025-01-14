@@ -24,6 +24,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -64,9 +66,22 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
 
     double oldTime = 0;
 
+    private static DcMotor odometryMotorX, odometryMotorY;
+
+
 
     @Override
     public void runOpMode() {
+
+        odometryMotorX = hardwareMap.dcMotor.get("frontLeft");
+        odometryMotorY = hardwareMap.dcMotor.get("backLeft");
+
+        odometryMotorX.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        odometryMotorY.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        // Set encoders to run without the motor (just track position)
+        odometryMotorX.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        odometryMotorY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -81,7 +96,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
         the tracking point the Y (strafe) odometry pod is. forward of center is a positive number,
         backwards is a negative number.
          */
-        odo.setOffsets(-84.0, -168.0); //these are tuned for 3110-0002-0001 Product Insight #1
+        odo.setOffsets(-7.566, -7.25); //these are tuned for 3110-0002-0001 Product Insight #1
 
         /*
         Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
@@ -89,7 +104,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
         If you're using another kind of odometry pod, uncomment setEncoderResolution and input the
         number of ticks per mm of your odometry pod.
          */
-        odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        odo.setEncoderResolution(44.9585274);
         //odo.setEncoderResolution(13.26291192);
 
 
@@ -126,6 +141,9 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+
+            int encoderTicksX = odometryMotorX.getCurrentPosition();
+            int encoderTicksY = odometryMotorY.getCurrentPosition();
 
             /*
             Request an update from the Pinpoint odometry computer. This checks almost all outputs
@@ -173,6 +191,9 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
             Pose2D vel = odo.getVelocity();
             String velocity = String.format(Locale.US,"{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.MM), vel.getY(DistanceUnit.MM), vel.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Velocity", velocity);
+
+            telemetry.addData("encoderTicksX", encoderTicksX);
+            telemetry.addData("encoderTicksY", encoderTicksY);
 
 
             /*

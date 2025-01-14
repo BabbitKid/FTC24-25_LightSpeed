@@ -1,12 +1,15 @@
+import java.text.SimpleDateFormat
+
 /**
  * Top-level build file for ftc_app project.
  *
  * It is extraordinarily rare that you will ever need to edit this file.
  */
 
+
 buildscript {
     ext {
-        kotlin_version = '1.9.0'
+        kotlin_version = '2.1.0'
     }
     repositories {
         mavenCentral()
@@ -14,7 +17,7 @@ buildscript {
     }
     dependencies {
         // Note for FTC Teams: Do not modify this yourself.
-        classpath 'com.android.tools.build:gradle:7.2.0'
+        classpath 'com.android.tools.build:gradle:8.7.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -31,3 +34,4 @@ allprojects {
 repositories {
     mavenCentral()
 }
+
