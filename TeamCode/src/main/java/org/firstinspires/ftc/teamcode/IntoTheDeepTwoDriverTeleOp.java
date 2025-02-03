@@ -35,6 +35,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.Arrays;
 
@@ -42,66 +43,91 @@ import java.util.Arrays;
 public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
 
     // Declare Motors, Servos, etc.
-    private static DcMotor leftFront, leftBack, rightFront, rightBack, slideMotor, hangMotor;
+    private static DcMotor leftFront, leftBack, rightFront, rightBack, intakeMotor, rightSlidesMotor, leftSlidesMotor;
 
-    private Servo  intakeArm, intakeSlides,fourBar, dropper, grabby, hangRelease;
+    private Servo armRotate, leftIntake, rightIntake, linearSlides, grabby, rightSlideArm, leftSlideArm;
 
-    private CRServo intake;
     private static double leftJoystickX, leftJoystickY, rightJoystickX, rightJoystickY;
     private static double leftFrontPower, leftBackPower, rightBackPower, rightFrontPower;
-    private double ENCODER_TICKS_PER_ROTATION = 1120 * (2.0/3);
+    private double ENCODER_TICKS_PER_ROTATION = 1120 * (2.0 / 3);
     private double driveFactor = 1;
     private boolean isGoingAllTheWayUp = false;
-
-
 
 
     @Override
     public void runOpMode() {
 
+        ElapsedTime timer = new ElapsedTime();
+
         leftFront = hardwareMap.dcMotor.get("frontLeft");
         leftBack = hardwareMap.dcMotor.get("backLeft");
         rightFront = hardwareMap.dcMotor.get("frontRight");
         rightBack = hardwareMap.dcMotor.get("backRight");
-        intake = hardwareMap.crservo.get("intake");
-        intakeArm = hardwareMap.servo.get("intakeArm");
-        intakeSlides = hardwareMap.servo.get("intakeSlides");
-        fourBar = hardwareMap.servo.get("fourBar");
-        dropper = hardwareMap.servo.get("dropper");
-        slideMotor = hardwareMap.dcMotor.get("vertSlides");
-        //grabby = hardwareMap.servo.get("grabby");
-        hangRelease = hardwareMap.servo.get("hangRelease");
-        hangMotor = hardwareMap.dcMotor.get("hangMotor");
+        intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
+        rightSlidesMotor = hardwareMap.dcMotor.get("rightSlidesMotor");
+        leftSlidesMotor = hardwareMap.dcMotor.get("leftSlidesMotor");
+
+        grabby = hardwareMap.servo.get("grabby");
 
 
-        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slideMotor.setTargetPosition(convertDegreesToEncoderTicks(0));
-        slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        slideMotor.setTargetPosition(convertDegreesToEncoderTicks(90));
-        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+        linearSlides = hardwareMap.servo.get("linearSlides");
+        armRotate = hardwareMap.servo.get("armServo");
+        leftIntake = hardwareMap.servo.get("leftIntake");
+        rightIntake = hardwareMap.servo.get("rightIntake");
+        rightSlideArm = hardwareMap.servo.get("rightSlideArm");
+        leftSlideArm = hardwareMap.servo.get("leftSlideArm");
 
+
+        rightSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightSlidesMotor.setTargetPosition(convertDegreesToEncoderTicks(5));
+        rightSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftSlidesMotor.setTargetPosition(convertDegreesToEncoderTicks(5));
+        leftSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightSlidesMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightIntake.setDirection(Servo.Direction.REVERSE);
+        rightSlideArm.setDirection(Servo.Direction.REVERSE);
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        leftBack.setDirection(DcMotor.Direction.REVERSE);
+        //grabby.setDirection(Servo.Direction.REVERSE);
+        //armRotate.setDirection(Servo.Direction.REVERSE);
+
+        /**
+
+         leftIntake.setPosition(.47);
+         rightIntake.setPosition(.47);
+         linearSlides.setPosition(.7);
+         rightSlideArm.setPosition(.9);
+         leftSlideArm.setPosition(.9);
+         armRotate.setPosition(.65);
+         grabby.setPosition(.27);
+         rightSlidesMotor.setTargetPosition(-10);
+         leftSlidesMotor.setTargetPosition(-10);
+         **/
 
         waitForStart();
 
-        // run until the end of the match (driver presses STOP)
+        // run until the end of the match (driver presses STOP
+
         while (opModeIsActive()) {
 
             //grabby.setPosition(.47);
 
-            slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            slideMotor.setPower(.75);
+
+            //slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);   //////////////////////////////////////////////////
+            //slideMotor.setPower(.75);
 
 
-            leftJoystickX = gamepad1.left_stick_x;
-            leftJoystickY = gamepad1.left_stick_y;
-            rightJoystickX = gamepad1.right_stick_x;
-            rightJoystickY = gamepad1.right_stick_y;
+            double leftJoystickX = gamepad1.left_stick_x;  // Flip strafing direction
+            double leftJoystickY = -gamepad1.left_stick_y;  // Keep forward/backward correct
+            double rightJoystickX = gamepad1.right_stick_x; // Keep rotation correct
 
-            leftFrontPower =    leftJoystickY - leftJoystickX - rightJoystickX;
-            rightFrontPower = -leftJoystickY - leftJoystickX - rightJoystickX;
-            leftBackPower = leftJoystickY + leftJoystickX - rightJoystickX;
-            rightBackPower = -leftJoystickY + leftJoystickX - rightJoystickX;
+// Fix strafing issue by flipping right-side strafing calculation
+            double leftFrontPower = leftJoystickY + leftJoystickX + rightJoystickX;
+            double rightFrontPower = leftJoystickY + leftJoystickX - rightJoystickX; // Flip leftJoystickX
+            double leftBackPower = leftJoystickY - leftJoystickX + rightJoystickX;
+            double rightBackPower = leftJoystickY - leftJoystickX - rightJoystickX; // Flip leftJoystickX
+
 
             double[] wheelPower = {Math.abs(leftFrontPower), Math.abs(leftBackPower), Math.abs(rightFrontPower), Math.abs(rightBackPower)};
             Arrays.sort(wheelPower);
@@ -130,112 +156,155 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
                 rightBack.setPower(rightBackPower);
 
             }
-            if (gamepad1.right_trigger > .5) {
-                fourBar.setPosition(.45); //four bar out
-            }
-            if (gamepad1.left_trigger > .5) {
-                fourBar.setPosition(0); //four bar in
-            }
-            if (gamepad1.a) { //dropper with wiggle
-                dropper.setPosition(.33);
-                dropper.setPosition(.35);
-                dropper.setPosition(.37);
-            } else dropper.setPosition(.5);
 
 
-
-            if (gamepad2.left_trigger > .5) {
-                intakeArm.setPosition(.58); //full down
-            }
-            if (gamepad2.left_bumper) {
-                intakeArm.setPosition(.49); //hover arm
-            }
-
-            if (gamepad2.b) {
-                intakeArm.setPosition(.038); //full in robot
-            }
-            if (gamepad2.right_trigger > .1) {
-                intake.setPower(1); //grab
-            }
-            if (gamepad2.right_bumper) {
-                intake.setPower(-1); //release
-            }
-            if (gamepad2.x){
-                intake.setPower(0);
-            }
-            if (gamepad2.dpad_down) {
-                intakeSlides.setPosition(.28); //slides in robot
-            }
-            if (gamepad2.dpad_up) {
-                intakeSlides.setPosition(.69); //slides extended
-            }
-            if (gamepad2.dpad_right) {
-                intakeArm.setPosition(intakeArm.getPosition()-.05);
-            }
-            //if (gamepad2.x) {
-            //    grabby.setPosition(.25);
-            //}
-            //if (gamepad2.dpad_right) {
-            //    grabby.setPosition(.45);
-            //}
-            if (gamepad1.x) {
-                hangRelease.setPosition(0);
-            }
-            if (gamepad1.y){
-                hangRelease.setPosition(.55);
-            }
-            if (gamepad1.b){
-                hangRelease.setPosition(.85);
-            }
-            if (gamepad1.dpad_up){
-                hangMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-                hangMotor.setPower(.75);
-            }
-            if (gamepad1.dpad_down){
-                hangMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-                hangMotor.setPower(.75);
-            }
-
-            if (gamepad1.dpad_right) {
-                hangMotor.setPower(0);
-            }
+            //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
-
-
-            if (gamepad2.y) {
-                slideMotor.setPower(.75);
-                slideMotor.setTargetPosition(6800);
+            if (gamepad2.x) { //go clip pos
+                leftSlideArm.setPosition(.25);
+                rightSlideArm.setPosition(.25);
+                armRotate.setPosition(.54);
+                rightSlidesMotor.setTargetPosition(-20);
+                leftSlidesMotor.setTargetPosition(-20);
+            }
+            if (gamepad2.b) { //in intake pos
+                rightSlideArm.setPosition(.87);
+                leftSlideArm.setPosition(.87);
+                timer.reset();
+                while (opModeIsActive() && timer.seconds() < 1.5) {
+                    idle();
+                }
+                rightSlideArm.setPosition(.93);
+                leftSlideArm.setPosition(.93);
+                armRotate.setPosition(.61);
+            }
+            if (gamepad2.y) { //get clip pos
+                leftSlideArm.setPosition(.78);
+                rightSlideArm.setPosition(.78);
+                armRotate.setPosition(.60);
+                rightSlidesMotor.setTargetPosition(-20);
+                leftSlidesMotor.setTargetPosition(-20);
             }
             if (gamepad2.a) {
-                slideMotor.setPower(.5);
-                slideMotor.setTargetPosition(convertDegreesToEncoderTicks(85)); //slide all the way down
+                rightSlidesMotor.setPower(.8);
+                leftSlidesMotor.setPower(.8);
+                rightSlidesMotor.setTargetPosition(-700);
+                leftSlidesMotor.setTargetPosition(-700);
+                leftSlideArm.setPosition(.1);
+                rightSlideArm.setPosition(.1);
+                armRotate.setPosition(.90);
             }
-            if (gamepad2.dpad_left) {
-                slideMotor.setPower(.5);
-                slideMotor.setTargetPosition(slideMotor.getCurrentPosition()+convertDegreesToEncoderTicks(15));
+            if (gamepad2.dpad_right) {
+                armRotate.setPosition(0);
+            }
+
+            /**
+
+             this version is with the get clip on the back and is not working
+
+             if (gamepad2.x) { //get clip pos
+             leftSlideArm.setPosition(.06);
+             rightSlideArm.setPosition(.06);
+             armRotate.setPosition(.47);
+             }
+             if (gamepad2.b) { //in intake pos
+             rightSlideArm.setPosition(.9);
+             leftSlideArm.setPosition(.9);
+             armRotate.setPosition(.65);
+             }
+             if (gamepad2.y) { //get clip pos
+             leftSlideArm.setPosition(.60);
+             rightSlideArm.setPosition(.60);
+             armRotate.setPosition(.70);
+             }
+             if (gamepad2.a)  {
+             leftSlideArm.setPosition(.25);
+             rightSlideArm.setPosition(.25);
+             armRotate.setPosition(.73);
+             }
+
+             if (gamepad2.right_trigger > .5) {
+             rightSlidesMotor.setPower(.8);
+             leftSlidesMotor.setPower(.8);
+             rightSlidesMotor.setTargetPosition(-1000);
+             leftSlidesMotor.setTargetPosition(-1000);
+             }
+
+             if (gamepad2.left_trigger > .5) {
+             rightSlidesMotor.setPower(.8);
+             leftSlidesMotor.setPower(.8);
+             rightSlidesMotor.setTargetPosition(-20);
+             leftSlidesMotor.setTargetPosition(-20);
+             }
+
+             */
+
+            if (gamepad2.right_bumper) {
+                rightSlidesMotor.setPower(.8);
+                leftSlidesMotor.setPower(.8);
+                rightSlidesMotor.setTargetPosition(-3250);
+                leftSlidesMotor.setTargetPosition(-3250);
+            }
+
+            if (gamepad2.left_bumper) {
+                rightSlidesMotor.setPower(.8);
+                leftSlidesMotor.setPower(.8);
+                rightSlidesMotor.setTargetPosition(-20);
+                leftSlidesMotor.setTargetPosition(-20);
             }
 
 
-            telemetry.addData("currentMotorPosition", slideMotor.getCurrentPosition());
-            //telemetry.addData("servo pos", .getPosition());
-            telemetry.update();
+                if (gamepad2.dpad_up) {
+                    linearSlides.setPosition(.2);
+                }
+                if (gamepad2.dpad_down) {
+                    linearSlides.setPosition(.70);
+                }
 
 
+                if (gamepad1.right_trigger > .5) {
+                    intakeMotor.setPower(-1);
+                } else if (gamepad1.left_trigger > .5) {
+                    intakeMotor.setPower(1);
+                } else {
+                    intakeMotor.setPower(0);
+                }
+
+                if (gamepad1.y) {
+                    grabby.setPosition(.27);
+                }
+                if (gamepad1.a) {
+                    grabby.setPosition(.6);
+                }
+                if (gamepad1.dpad_up) {
+                    leftIntake.setPosition(.15);
+                    rightIntake.setPosition(.15);
+                }
+                if (gamepad1.dpad_down) {
+                    leftIntake.setPosition(.47);
+                    rightIntake.setPosition(.47);
+                }
 
 
+                //Intake .25 is up and 0 is down
+                // linear slides in .75 linear slides out 0
+                //slide arm clipping is .1 in intake is .9
+
+                //////////////////////////////////////////////////////////////////////////////////////
+
+                telemetry.addData("servo pos", leftIntake.getPosition());
+                telemetry.addData("servo pos", rightIntake.getPosition());
+                telemetry.addData("slidesPosRight", rightSlidesMotor.getCurrentPosition());
+                telemetry.addData("slidesPosLeft", leftSlidesMotor.getCurrentPosition());
+                telemetry.update();
 
 
-
+            }
 
         }
 
+        public int convertDegreesToEncoderTicks ( double degrees){
+            return (int) (degrees / 360 * ENCODER_TICKS_PER_ROTATION);
+        }
     }
-
-    public int convertDegreesToEncoderTicks(double degrees) {
-        return (int) (degrees / 360 * ENCODER_TICKS_PER_ROTATION);
-    }
-
-}

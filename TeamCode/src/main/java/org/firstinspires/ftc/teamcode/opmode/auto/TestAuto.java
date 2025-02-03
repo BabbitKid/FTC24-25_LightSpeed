@@ -258,8 +258,7 @@ public class TestAuto extends OpMode {
         claw = new ClawSubsystem(hardwareMap);
 
         // Set the claw to positions for init
-        claw.closeClaw();
-        claw.startClaw();
+
     }
 
 

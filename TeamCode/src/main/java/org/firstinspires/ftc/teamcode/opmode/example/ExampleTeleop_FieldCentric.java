@@ -58,22 +58,22 @@ public class ExampleTeleop_FieldCentric extends OpMode {
 
         /* Open claw on Left Bumper Press */
         if (gamepad1.left_bumper) {
-            claw.openClaw();
+
         }
 
         /* Close claw on Right Bumper Press */
         if (gamepad1.right_bumper) {
-            claw.closeClaw();
+
         }
 
         /* Ground Claw Pivot Position on A Press */
         if (gamepad1.a) {
-            claw.groundClaw();
+
         }
 
         /* Scoring Claw Pivot Position on B Press */
         if (gamepad1.b) {
-            claw.scoringClaw();
+
         }
 
         /* This could be paired with a PIDF to set the target position of the lift in teleop.
@@ -96,8 +96,7 @@ public class ExampleTeleop_FieldCentric extends OpMode {
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
 
         /* Telemetry Outputs of our ClawSubsystem */
-        telemetry.addData("Grab Position", claw.getGrabPosition());
-        telemetry.addData("Pivot Position", claw.getPivotPosition());
+
 
         /* Update Telemetry to the Driver Hub */
         telemetry.update();

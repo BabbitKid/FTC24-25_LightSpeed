@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.config.subsystem;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.config.RobotConstants;
 
 /** This is a subsystem, for the claw of our robot
@@ -14,7 +17,9 @@ import org.firstinspires.ftc.teamcode.config.RobotConstants;
 
 public class ClawSubsystem {
 
-    private Servo pivot, grab;
+    private Servo  armRotate, leftIntake, rightIntake, linearSlides, grabby, rightSlideArm, leftSlideArm;
+
+    private DcMotor rightSlidesMotor, leftSlidesMotor, intakeMotor;
 
     /** This is the constructor for the subsystem, it maps the servos to the hardwareMap.
      * The device names should align with the configuration names on the driver hub.
@@ -22,49 +27,75 @@ public class ClawSubsystem {
      * and then call the below constructor in the init() method. */
 
     public ClawSubsystem(HardwareMap hardwareMap) {
-        pivot = hardwareMap.get(Servo.class, "pivot");
-        grab = hardwareMap.get(Servo.class, "grab");
+        armRotate = hardwareMap.get(Servo.class, "armServo");
+        leftIntake = hardwareMap.get(Servo.class, "leftIntake");
+        rightIntake = hardwareMap.get(Servo.class, "rightIntake");
+        linearSlides = hardwareMap.get(Servo.class, "linearSlides");
+        grabby = hardwareMap.get(Servo.class, "grabby");
+        rightSlideArm = hardwareMap.get(Servo.class, "rightSlideArm");
+        leftSlideArm = hardwareMap.get(Servo.class, "leftSlideArm");
+        rightSlidesMotor = hardwareMap.get(DcMotor.class, "rightSlidesMotor");
+        leftSlidesMotor = hardwareMap.get(DcMotor.class, "leftSlidesMotor");
+        intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
+
     }
 
-    //------------------------------Grab------------------------------//
 
-    /** This is the closeClaw method, it sets the grab to the closed position defined in RobotConstants. */
-    public void closeClaw() {
-        grab.setPosition(RobotConstants.closedClaw);
+    public double getLeftIntake(){return leftIntake.getPosition();}
+
+    public double getRightIntake(){return rightIntake.getPosition();}
+
+    public double getLinearSlides(){return linearSlides.getPosition();}
+
+    public double getRightLideArm(){return rightSlideArm.getPosition();}
+
+    public double getLeftSlideArm(){return leftSlideArm.getPosition();}
+
+    public double getArmRotate(){return armRotate.getPosition();}
+
+    public double getGrabby(){return grabby.getPosition();}
+
+    public double getRightSlidesMotor(){return rightSlidesMotor.getCurrentPosition();}
+
+    public double getLeftSlidesMotor(){return leftSlidesMotor.getCurrentPosition();}
+
+    public double getIntakeMotor(){return intakeMotor.getCurrentPosition();}
+
+    //------------------------------New Claw------------------------------//
+
+    /**
+
+    public void groundClaw() {pivot.setPosition(RobotConstants.groundClaw);}
+
+     **/
+
+    public void intakeDown() {
+        rightIntake.setPosition(RobotConstants.intakeDown);
+        leftIntake.setPosition(RobotConstants.intakeDown);
     }
 
-    /** This is the openClaw method, it sets the grab to the open position defined in RobotConstants. */
-    public void openClaw() {
-        grab.setPosition(RobotConstants.openClaw);
+    public void linearSlidesIn() {linearSlides.setPosition(RobotConstants.linearSlidesIn);}
+
+    public void slidesArmInIntake() {
+        rightSlideArm.setPosition(RobotConstants.slidesArmInIntake);
+        leftSlideArm.setPosition(RobotConstants.slidesArmInIntake);
     }
 
-    //------------------------------Pivot------------------------------//
+    public void grabbyOpen() {grabby.setPosition(RobotConstants.grabbyOpen);}
 
-    /** This is the startClaw method, it sets the pivot to the start position defined in RobotConstants. */
-    public void startClaw() {
-        pivot.setPosition(RobotConstants.startClaw);
+    public void grabbyClose() {grabby.setPosition(RobotConstants.grabbyClose);}
+
+    public void slidesDown() {
+        rightSlidesMotor.setTargetPosition(RobotConstants.slidesDown);
+        leftSlidesMotor.setTargetPosition(RobotConstants.slidesDown);
     }
 
-    /** This is the groundClaw method, it sets the pivot to the ground position defined in RobotConstants. */
-    public void groundClaw() {
-        pivot.setPosition(RobotConstants.groundClaw);
-    }
+    public void intakeIn() {intakeMotor.setPower(RobotConstants.intakeIn);}
 
-    /** This is the scoringClaw method, it sets the pivot to the scoring position defined in RobotConstants. */
-    public void scoringClaw() {
-        pivot.setPosition(RobotConstants.scoringClaw);
-    }
+    public void intakeStop() {intakeMotor.setPower(RobotConstants.intakeStop);}
 
-    //------------------------------Getters------------------------------//
+    public void intakeOut() {intakeMotor.setPower(RobotConstants.intakeOut);}
 
-    /** This is the getGrabPosition method, it returns the current position of the grab. */
-    public double getGrabPosition() {
-        return grab.getPosition();
-    }
-
-    /** This is the getPivotPosition method, it returns the current position of the pivot. */
-    public double getPivotPosition() {
-        return pivot.getPosition();
-    }
+    //public void armGetClip() {armRotate.setPosition();}
 
 }
