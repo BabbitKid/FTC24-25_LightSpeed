@@ -70,8 +70,15 @@ public class ClawSubsystem {
      **/
 
     public void intakeDown() {
+        rightIntake.setDirection(Servo.Direction.REVERSE);
         rightIntake.setPosition(RobotConstants.intakeDown);
         leftIntake.setPosition(RobotConstants.intakeDown);
+    }
+
+    public void  intakeUp(){
+        rightIntake.setDirection(Servo.Direction.REVERSE);
+        rightIntake.setPosition(RobotConstants.intakeUp);
+        leftIntake.setPosition(RobotConstants.intakeUp);
     }
 
     public void linearSlidesIn() {linearSlides.setPosition(RobotConstants.linearSlidesIn);}

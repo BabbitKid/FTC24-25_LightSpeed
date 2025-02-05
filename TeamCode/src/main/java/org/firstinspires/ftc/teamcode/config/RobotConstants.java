@@ -15,7 +15,7 @@ public class RobotConstants {
     public static double groundClaw = 0.835;
     public static double scoringClaw = 0.25;
     public static double intakeDown= .47;
-    public static double linearSlidesIn = .7;
+    public static double linearSlidesIn = .765;
     public static double slidesArmInIntake =.9;
     public static double grabbyOpen = .27;
     public static double grabbyClose = .6;
@@ -24,6 +24,7 @@ public class RobotConstants {
     public static double intakeIn = -1;
     public static double intakeStop = 0;
     public static double intakeOut = 1;
+    public static double intakeUp = .05;
 
 
 }

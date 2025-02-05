@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmode.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.*;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
@@ -33,6 +34,8 @@ public class ClippingAuto extends OpMode {
      * It is used by the pathUpdate method. */
     private int pathState;
 
+    private Servo leftIntake, rightIntake;
+
     /** This is our claw subsystem.
      * We call its methods to manipulate the servos that it has within the subsystem. */
     public ClawSubsystem claw;
@@ -47,46 +50,50 @@ public class ClippingAuto extends OpMode {
      * Lets assume the Robot is facing the human player and we want to score in the bucket */
 
     /** Start Pose of our robot */
+
+
     private final Pose startPose = new Pose(0, 12, Math.toRadians(0));
 
     //my new pose
-    private final Pose goOut1Pose = new Pose(-50, -13, Math.toRadians(0));
+    private final Pose goOut1Pose = new Pose(50, 13, Math.toRadians(0));
 
-    private final Pose getBlock1Pose = new Pose(-50, -3, Math.toRadians(0));
+    private final Pose getBlock1Pose = new Pose(50, 3, Math.toRadians(0));
 
-    private final Pose goIn1Pose = new Pose(-10, -3, Math.toRadians(0));
+    private final Pose goIn1Pose = new Pose(10, 3, Math.toRadians(0));
 
-    private final Pose goOut2Pose = new Pose(-50, -3, Math.toRadians(0));
+    private final Pose goOut2Pose = new Pose(50, 3, Math.toRadians(0));
 
-    private final Pose getBlock2Pose = new Pose(-50, 8, Math.toRadians(0));
+    private final Pose getBlock2Pose = new Pose(50, -8, Math.toRadians(0));
 
-    private final Pose goIn2Pose = new Pose(-10, 8, Math.toRadians(0));
+    private final Pose goIn2Pose = new Pose(10, -8, Math.toRadians(0));
 
-    private final Pose goOut3Pose = new Pose(-50, 8, Math.toRadians(0));
+    private final Pose goOut3Pose = new Pose(50, -8, Math.toRadians(0));
 
-    private final Pose getBlock3Pose = new Pose(-50, 11.75, Math.toRadians(0));
+    private final Pose getBlock3Pose = new Pose(50, -11.75, Math.toRadians(0));
 
-    private final Pose goIn3Pose = new Pose(-10, 9.5, Math.toRadians(0));
+    private final Pose goIn3Pose = new Pose(10, -9.5, Math.toRadians(0));
 
     private final Pose getClip1Pose = new Pose(-7, 3, Math.toRadians(0));
 
     private final Pose goClip1Pose = new Pose(-28, -40, Math.toRadians(0));
 
-    private final Pose getClip2Pose = new Pose(-7, 3, Math.toRadians(0));
+    private final Pose getClip2Pose = new Pose(7, -3, Math.toRadians(0));
 
-    private final Pose goClip2Pose = new Pose(-28, 42, Math.toRadians(0));
+    private final Pose goClip2Pose = new Pose(28, -42, Math.toRadians(0));
 
-    private final Pose getClip3Pose = new Pose(-7, 3, Math.toRadians(0));
+    private final Pose getClip3Pose = new Pose(7, -3, Math.toRadians(0));
 
-    private final Pose goClip3Pose = new Pose(-28, -48, Math.toRadians(0));
+    private final Pose goClip3Pose = new Pose(28, 48, Math.toRadians(0));
 
     private Path scorePreload, park;
     private PathChain goOut1, getBlock1, goIn1, goOut2, getBlock2, goIn2, goOut3, getBlock3, goIn3, getClip1, goClip1, getClip2, goClip2, getClip3, goClip3;
 
     public static boolean checkWithinOneInch(double currentX, double targetX, double currentY, double targetY) {
         double distance = Math.sqrt(Math.pow(currentX - targetX, 2) + Math.pow(currentY - targetY, 2));
-        return distance <= 1.0;
+        return distance <= 2.0;
     }
+
+
 
 
     public void buildPaths() {
@@ -177,6 +184,9 @@ public class ClippingAuto extends OpMode {
     }
 
     public void autonomousPathUpdate() {
+
+
+
         switch (pathState) {
             case 0:
                 follower.followPath(scorePreload);
@@ -221,6 +231,7 @@ public class ClippingAuto extends OpMode {
                     break;
                 } else {
                     follower.followPath(goOut2, true);
+
                 }
                 break;
             case 5:
@@ -230,6 +241,7 @@ public class ClippingAuto extends OpMode {
                     break;
                 } else {
                     follower.followPath(getBlock2, true);
+
                 }
                 break;
             case 6:
@@ -239,6 +251,7 @@ public class ClippingAuto extends OpMode {
                     break;
                 } else {
                     follower.followPath(goIn2, true);
+
                 }
 
                 break;
@@ -249,6 +262,7 @@ public class ClippingAuto extends OpMode {
                     break;
                 } else {
                     follower.followPath(goOut3, true);
+
                 }
 
                 break;
@@ -259,6 +273,7 @@ public class ClippingAuto extends OpMode {
                     break;
                 } else {
                     follower.followPath(getBlock3, true);
+
                 }
 
                 break;
@@ -269,6 +284,7 @@ public class ClippingAuto extends OpMode {
                     break;
                 } else {
                     follower.followPath(goIn3, true);
+
                 }
 
                 break;
@@ -280,6 +296,7 @@ public class ClippingAuto extends OpMode {
                 } else {
                     follower.followPath(getClip1, true);
 
+
                 }
 
                 break;
@@ -290,6 +307,7 @@ public class ClippingAuto extends OpMode {
                     break;
                 } else {
                     follower.followPath(goClip1, true);
+
                 }
 
                 break;
@@ -300,6 +318,7 @@ public class ClippingAuto extends OpMode {
                     break;
                 } else {
                     follower.followPath(getClip2, true);
+
                 }
 
                 break;
@@ -310,6 +329,7 @@ public class ClippingAuto extends OpMode {
                     break;
                 } else {
                     follower.followPath(goClip2, true);
+
                 }
 
                 break;
@@ -320,6 +340,7 @@ public class ClippingAuto extends OpMode {
                     break;
                 } else {
                     follower.followPath(getClip3, true);
+
                 }
 
                 break;
@@ -330,6 +351,7 @@ public class ClippingAuto extends OpMode {
                     break;
                 } else {
                     follower.followPath(goClip3, true);
+
                 }
 
                 break;
@@ -346,9 +368,16 @@ public class ClippingAuto extends OpMode {
     @Override
     public void loop() {
 
+        leftIntake = hardwareMap.servo.get("leftIntake");
+        rightIntake = hardwareMap.servo.get("rightIntake");
+
         // These loop the movements of the robot
         follower.update();
         autonomousPathUpdate();
+
+        claw.linearSlidesIn();
+        claw.intakeUp();
+
 
         if (checkWithinOneInch(follower.getPose().getX(), goOut1Pose.getX(), follower.getPose().getY(), goOut1Pose.getY())) {
             telemetry.addData("Working", pathState);
