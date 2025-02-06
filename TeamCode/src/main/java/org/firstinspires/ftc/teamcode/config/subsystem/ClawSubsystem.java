@@ -96,6 +96,29 @@ public class ClawSubsystem {
         rightSlidesMotor.setTargetPosition(RobotConstants.slidesDown);
         leftSlidesMotor.setTargetPosition(RobotConstants.slidesDown);
     }
+    public void readyClip() {
+        leftSlideArm.setPosition(.25);
+        rightSlideArm.setPosition(.25);
+        armRotate.setPosition(.54);
+        rightSlidesMotor.setTargetPosition(-5);
+        leftSlidesMotor.setTargetPosition(-20);
+    }
+    public void clip(){
+        rightSlidesMotor.setPower(.8);
+        leftSlidesMotor.setPower(.8);
+        rightSlidesMotor.setTargetPosition(-700);
+        leftSlidesMotor.setTargetPosition(-700);
+        leftSlideArm.setPosition(.1);
+        rightSlideArm.setPosition(.1);
+        armRotate.setPosition(.90);
+    }
+    public void getClip(){
+        leftSlideArm.setPosition(.78);
+        rightSlideArm.setPosition(.78);
+        armRotate.setPosition(.60);
+        rightSlidesMotor.setTargetPosition(-5);
+        leftSlidesMotor.setTargetPosition(-20);
+    }
 
     public void intakeIn() {intakeMotor.setPower(RobotConstants.intakeIn);}
 
