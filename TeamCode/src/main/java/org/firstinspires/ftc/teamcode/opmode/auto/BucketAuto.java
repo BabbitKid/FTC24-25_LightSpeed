@@ -53,7 +53,7 @@ public class BucketAuto extends OpMode {
 
     private final Pose scoreFinalBucketPose = new Pose(15, 19, Math.toRadians(-45));
 
-    private final Pose getBlock1Pose = new Pose(30, 19, Math.toRadians(0));
+    private final Pose getBlock1Pose = new Pose(30, 16, Math.toRadians(0));
 
     private final Pose getBlock2Pose = new Pose(26, 19, Math.toRadians(0));
 
@@ -165,13 +165,13 @@ public class BucketAuto extends OpMode {
             case 3:
                 if (!follower.isBusy()){
                     follower.followPath(getBlock1, true);
-                    setPathState(-1);
+                    setPathState(4);
                 }
                 break;
             case 4:
                 if (!follower.isBusy()){
                     follower.followPath(scoreBucket1, true);
-                    setPathState(5);
+                    setPathState(-1);
                 }
                 break;
             case 5:
