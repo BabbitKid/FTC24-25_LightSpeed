@@ -27,8 +27,8 @@ import org.firstinspires.ftc.teamcode.config.subsystem.ClawSubsystem;
  * @version 2.0, 11/28/2024
  */
 
-@Autonomous(name = "ClippingAuto")
-public class ClippingAuto extends OpMode {
+@Autonomous(name = "ClippingAutoWithFollowerIsBusy")
+public class ClippingAutoWithFollowerIsBusy extends OpMode {
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
@@ -59,7 +59,7 @@ public class ClippingAuto extends OpMode {
 
     private final Pose startPose = new Pose(0, -12, Math.toRadians(0));
 
-    private final Pose skibidiPose = new Pose(-20, -46, Math.toRadians(0));
+    private final Pose skibidiPose = new Pose(-26, -46, Math.toRadians(0));
 
     private final Pose goOut1Pose = new Pose(-50, -13, Math.toRadians(0));
 
@@ -94,8 +94,8 @@ public class ClippingAuto extends OpMode {
     private final Pose parkPose = new Pose(-26, -48, Math.toRadians(0));
 
     private final Pose parkControlPose = new Pose(-26, -48, Math.toRadians(0));
-        private Path scorePreload, park;
-        private PathChain skibidi, goOut1, getBlock1, goIn1, goOut2, getBlock2, goIn2, goOut3, getBlock3, goIn3, getClip1, goClip1, getClip2, goClip2, getClip3, goClip3;
+    private Path scorePreload, park;
+    private PathChain skibidi, goOut1, getBlock1, goIn1, goOut2, getBlock2, goIn2, goOut3, getBlock3, goIn3, getClip1, goClip1, getClip2, goClip2, getClip3, goClip3;
 
     public static boolean checkWithinOneInch(double currentX, double targetX, double currentY, double targetY) {
         double distance = Math.sqrt(Math.pow(currentX - targetX, 2) + Math.pow(currentY - targetY, 2));
@@ -234,194 +234,170 @@ public class ClippingAuto extends OpMode {
 
 
 
+        follower.setMaxPower(.25);
+
         switch (pathState) {
+
+
+
             case 0:
-                follower.followPath(scorePreload);
-                setPathState(1);
-                break;
-            case 1:
-                if (checkWithinOneInch(follower.getPose().getX(), skibidiPose.getX(), follower.getPose().getY(), skibidiPose.getY())) {
-                    setPathState(2);
-                } else {
-                    claw.readyClip();
-                    follower.followPath(skibidi, true);
-                    claw.clip();
-                    claw.readyClip();
-                    claw.getClip();
+                if (!follower.isBusy()) {
+                    follower.followPath(scorePreload, true);
+                    setPathState(1);
 
                 }
+                break;
+            case 1:
+                if (!follower.isBusy()) {
+                    follower.followPath(skibidi, true);
+                    setPathState(2);
+                }
+
+                /**
+
+                 leftSlideArm.setPosition(.25);
+                 rightSlideArm.setPosition(.25);
+                 armRotate.setPosition(.54);
+                 rightSlidesMotor.setTargetPosition(-5);
+                 leftSlidesMotor.setTargetPosition(-20);
+
+                 */
+
                 break;
             case 2:
 
 
-                if (checkWithinOneInch(follower.getPose().getX(), goOut1Pose.getX(), follower.getPose().getY(), goOut1Pose.getY())) {
-                    setPathState(3);
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(goOut1, true);
-
+                    setPathState(3);
                 }
+
                 break;
             case 3:
 
 
 
-                if (checkWithinOneInch(follower.getPose().getX(), getBlock1Pose.getX(), follower.getPose().getY(), getBlock1Pose.getY())) {
-                    setPathState(4);
-                    break;
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(getBlock1, true);
-
+                    setPathState(4);
                 }
+
                 break;
             case 4:
 
-                if (checkWithinOneInch(follower.getPose().getX(), goIn1Pose.getX(), follower.getPose().getY(), goIn1Pose.getY())) {
-                    setPathState(5);
-                    break;
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(goIn1, true);
-
+                    setPathState(5);
                 }
+
                 break;
             case 5:
 
-                if (checkWithinOneInch(follower.getPose().getX(), goOut2Pose.getX(), follower.getPose().getY(), goOut2Pose.getY())) {
-                    setPathState(6);
-                    break;
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(goOut2, true);
-
+                    setPathState(6);
                 }
+
                 break;
             case 6:
 
-                if (checkWithinOneInch(follower.getPose().getX(), getBlock2Pose.getX(), follower.getPose().getY(), getBlock2Pose.getY())) {
-                    setPathState(7);
-                    break;
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(getBlock2, true);
-
+                    setPathState(7);
                 }
+
                 break;
             case 7:
 
-                if (checkWithinOneInch(follower.getPose().getX(), goIn2Pose.getX(), follower.getPose().getY(), goIn2Pose.getY())) {
-                    setPathState(8);
-                    break;
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(goIn2, true);
-
+                    setPathState(8);
                 }
 
                 break;
             case 8:
 
-                if (checkWithinOneInch(follower.getPose().getX(), goOut3Pose.getX(), follower.getPose().getY(), goOut3Pose.getY())) {
-                    setPathState(9);
-                    break;
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(goOut3, true);
-
+                    setPathState(9);
                 }
 
                 break;
             case 9:
 
-                if (checkWithinOneInch(follower.getPose().getX(), getBlock3Pose.getX(), follower.getPose().getY(), getBlock3Pose.getY())) {
-                    setPathState(10);
-                    break;
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(getBlock3, true);
-
+                    setPathState(10);
                 }
 
                 break;
             case 10:
 
-                if (checkWithinOneInch(follower.getPose().getX(), goIn3Pose.getX(), follower.getPose().getY(), goIn3Pose.getY())) {
-                    setPathState(11);
-                    break;
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(goIn3, true);
-
+                    setPathState(11);
                 }
 
                 break;
             case 11:
 
-                if (checkWithinOneInch(follower.getPose().getX(), getClip1Pose.getX(), follower.getPose().getY(), getClip1Pose.getY())) {
-                    setPathState(12);
-                    break;
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(getClip1, true);
-
-
+                    setPathState(12);
                 }
 
                 break;
             case 12:
 
-                if (checkWithinOneInch(follower.getPose().getX(), goClip1Pose.getX(), follower.getPose().getY(), goClip1Pose.getY())) {
-                    setPathState(13);
-                    break;
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(goClip1, true);
-
+                    setPathState(13);
                 }
 
                 break;
             case 13:
 
-                if (checkWithinOneInch(follower.getPose().getX(), getClip2Pose.getX(), follower.getPose().getY(), getClip2Pose.getY())) {
-                    setPathState(14);
-                    break;
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(getClip2, true);
-
+                    setPathState(14);
                 }
 
                 break;
             case 14:
 
-                if (checkWithinOneInch(follower.getPose().getX(), goClip2Pose.getX(), follower.getPose().getY(), goClip2Pose.getY())) {
-                    setPathState(15);
-                    break;
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(goClip2, true);
-
+                    setPathState(15);
                 }
 
                 break;
             case 15:
 
-                if (checkWithinOneInch(follower.getPose().getX(), getClip3Pose.getX(), follower.getPose().getY(), getClip3Pose.getY())) {
-                    setPathState(16);
-                    break;
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(getClip3, true);
+                    setPathState(16);
 
                 }
 
                 break;
             case 16:
 
-                if (checkWithinOneInch(follower.getPose().getX(), goClip3Pose.getX(), follower.getPose().getY(), goClip3Pose.getY())) {
-                    setPathState(17);
-                    break;
-                } else {
+                if (!follower.isBusy()) {
                     follower.followPath(goClip3, true);
+                    setPathState(17);
 
                 }
 
                 break;
             case 17:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(checkWithinOneInch(follower.getPose().getX(), parkPose.getX(), follower.getPose().getY(), parkPose.getY())) {
-                    setPathState(-1);
-                    break;
-                } else {
+                if(!follower.isBusy()) {
                     follower.followPath(goClip3, true);
+                    setPathState(-1);
+
                 }
+
+                break;
         }
     }
 
@@ -444,7 +420,7 @@ public class ClippingAuto extends OpMode {
         claw.intakeDown();
 
 
-        if (checkWithinOneInch(follower.getPose().getX(), goOut1Pose.getX(), follower.getPose().getY(), goOut1Pose.getY())) {
+        if (!follower.isBusy()) {
             telemetry.addData("Working", pathState);
         } else {
             telemetry.addData("Not Working", pathState);
