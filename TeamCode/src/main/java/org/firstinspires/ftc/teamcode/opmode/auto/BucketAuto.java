@@ -49,19 +49,21 @@ public class BucketAuto extends OpMode {
     /** Start Pose of our robot */
     private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
 
-    private final Pose scoreBucketPose = new Pose(5, 20, Math.toRadians(-45));
+    private final Pose scoreBucketPose = new Pose(5, 15, Math.toRadians(-45));
 
     private final Pose scoreFinalBucketPose = new Pose(15, 19, Math.toRadians(-45));
 
-    private final Pose getBlock1Pose = new Pose(26, 9, Math.toRadians(0));
+    private final Pose getBlock1Pose = new Pose(30, 16, Math.toRadians(0));
 
     private final Pose getBlock2Pose = new Pose(26, 19, Math.toRadians(0));
 
     private final Pose getBlock3Pose = new Pose(40, 19, Math.toRadians(90));
 
+    private final Pose alignStraight = new Pose (12,19, Math.toRadians(0));
+
 
     private Path scorePreload, park;
-    private PathChain scoreBucketPre, getBlock1, scoreBucket1, getBlock2, scoreBucket2, getBlock3, scoreFinalBucket;
+    private PathChain scoreBucketPre, alignStraightPath, getBlock1, scoreBucket1, getBlock2, scoreBucket2, getBlock3, scoreFinalBucket;
 
     public static boolean checkWithinOneInch(double currentX, double targetX, double currentY, double targetY) {
         // Check if within one inch
@@ -103,10 +105,14 @@ public class BucketAuto extends OpMode {
                 .setLinearHeadingInterpolation(startPose.getHeading(), scoreBucketPose.getHeading())
                 .build();
 
+        alignStraightPath = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(scoreBucketPose), new Point(alignStraight)))
+                .setLinearHeadingInterpolation(scoreBucketPose.getHeading(), alignStraight.getHeading())
+                .build();
 
         getBlock1 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(scoreBucketPose), new Point(getBlock1Pose)))
-                .setLinearHeadingInterpolation(scoreBucketPose.getHeading(), getBlock1Pose.getHeading())
+                .addPath(new BezierLine(new Point(alignStraight), new Point(getBlock1Pose)))
+                .setLinearHeadingInterpolation(alignStraight.getHeading(), getBlock1Pose.getHeading())
                 .build();
 
         scoreBucket1 = follower.pathBuilder()
@@ -145,71 +151,51 @@ public class BucketAuto extends OpMode {
                 break;
 
             case 1:
-                if (checkWithinOneInch(follower.getPose().getX(), scoreBucketPose.getX(), follower.getPose().getY(), scoreBucketPose.getY())) {
-                    setPathState(2);
-                } else {
+                if (!follower.isBusy()){
                     follower.followPath(scoreBucketPre, true);
-
+                    setPathState(2);
                 }
                 break;
             case 2:
-
-
-                if (checkWithinOneInch(follower.getPose().getX(), getBlock1Pose.getX(), follower.getPose().getY(), getBlock1Pose.getY())) {
+                if (!follower.isBusy()) {
+                    follower.followPath(alignStraightPath, true);
                     setPathState(3);
-                } else {
-                    follower.followPath(getBlock1, true);
-
                 }
                 break;
             case 3:
-
-
-                if (checkHeading(follower.getPose().getHeading(), scoreBucketPose.getHeading(), 5)) {
+                if (!follower.isBusy()){
+                    follower.followPath(getBlock1, true);
                     setPathState(4);
-                } else {
-                    follower.followPath(scoreBucket1, true);
-
                 }
                 break;
             case 4:
-
-
-                if (checkHeading(follower.getPose().getHeading(), getBlock2Pose.getHeading(), 5)) {
-                    setPathState(5);
-                } else {
-                    follower.followPath(getBlock2, true);
-
+                if (!follower.isBusy()){
+                    follower.followPath(scoreBucket1, true);
+                    setPathState(-1);
                 }
                 break;
             case 5:
-
-
-                if (checkHeading(follower.getPose().getHeading(), scoreBucketPose.getHeading(), 5)) {
+                if (!follower.isBusy()){
+                    follower.followPath(getBlock2, true);
                     setPathState(6);
-                } else {
-                    follower.followPath(scoreBucket2, true);
-
                 }
                 break;
             case 6:
-
-
-                if (checkHeading(follower.getPose().getHeading(), getBlock3Pose.getHeading(), 5)) {
+                if (!follower.isBusy()){
+                    follower.followPath(scoreBucket2, true);
                     setPathState(7);
-                } else {
-                    follower.followPath(getBlock3, true);
-
                 }
                 break;
             case 7:
-
-
-                if (checkHeading(follower.getPose().getHeading(), scoreBucketPose.getHeading(), 5)) {
+                if (!follower.isBusy()){
+                    follower.followPath(getBlock3, true);
                     setPathState(8);
-                } else {
+                }
+                break;
+            case 8:
+                if (!follower.isBusy()){
                     follower.followPath(scoreFinalBucket, true);
-
+                    setPathState(9);
                 }
                 break;
         }

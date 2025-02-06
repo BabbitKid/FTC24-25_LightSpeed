@@ -36,8 +36,8 @@ public class FollowerConstants {
 
     // This section is for setting the actual drive vector for the front left wheel, if the robot
     // is facing a heading of 0 radians with the wheel centered at (0,0)
-        private static double xMovement = 58.885;
-    private static double yMovement = 39.006;
+    private static double xMovement = 81.34056;
+    private static double yMovement = 65.43028;
     private static double[] convertToPolar = Point.cartesianToPolar(xMovement, -yMovement);
     public static Vector frontLeftVector = MathFunctions.normalizeVector(new Vector(convertToPolar[0], convertToPolar[1]));
 
@@ -95,15 +95,13 @@ public class FollowerConstants {
     public static double centripetalScaling = 0.0005;
 
 
-
+    // Acceleration of the drivetrain when power is cut in inches/second^2 (should be negative)
+    // if not negative, then the robot thinks that its going to go faster under 0 power
+    public static double forwardZeroPowerAcceleration = -34.62719;
 
     // Acceleration of the drivetrain when power is cut in inches/second^2 (should be negative)
     // if not negative, then the robot thinks that its going to go faster under 0 power
-    public static double forwardZeroPowerAcceleration = -33.9092;
-
-    // Acceleration of the drivetrain when power is cut in inches/second^2 (should be negative)
-    // if not negative, then the robot thinks that its going to go faster under 0 power
-    public static double lateralZeroPowerAcceleration = -82.7395;
+    public static double lateralZeroPowerAcceleration = -78.15554;
 
     // A multiplier for the zero power acceleration to change the speed the robot dece lerates at
     // the end of paths.
@@ -112,7 +110,7 @@ public class FollowerConstants {
     // Decreasing this will cause the deceleration at the end of the Path to be slower, making the
     // robot slower but reducing risk of end-of-path overshoots or localization slippage.
     // This can be set individually for each Path, but this is the default.
-    public static double zeroPowerAccelerationMultiplier = 32;
+    public static double zeroPowerAccelerationMultiplier = 6;
 
 
     // When the robot is at the end of its current Path or PathChain and the velocity goes below
