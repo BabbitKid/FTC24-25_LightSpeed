@@ -103,14 +103,14 @@ public class FollowerConstants {
     // if not negative, then the robot thinks that its going to go faster under 0 power
     public static double lateralZeroPowerAcceleration = -78.15554;
 
-    // A multiplier for the zero power acceleration to change the speed the robot decelerates at
+    // A multiplier for the zero power acceleration to change the speed the robot dece lerates at
     // the end of paths.
     // Increasing this will cause the robot to try to decelerate faster, at the risk of overshoots
     // or localization slippage.
     // Decreasing this will cause the deceleration at the end of the Path to be slower, making the
     // robot slower but reducing risk of end-of-path overshoots or localization slippage.
     // This can be set individually for each Path, but this is the default.
-    public static double zeroPowerAccelerationMultiplier = 38;
+    public static double zeroPowerAccelerationMultiplier = 24;
 
 
     // When the robot is at the end of its current Path or PathChain and the velocity goes below

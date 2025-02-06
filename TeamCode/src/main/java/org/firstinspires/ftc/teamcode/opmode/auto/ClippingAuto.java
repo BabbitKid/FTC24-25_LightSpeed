@@ -3,10 +3,13 @@ package org.firstinspires.ftc.teamcode.opmode.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.*;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.PathChain;
@@ -34,7 +37,6 @@ public class ClippingAuto extends OpMode {
      * It is used by the pathUpdate method. */
     private int pathState;
 
-    private Servo leftIntake, rightIntake;
 
     /** This is our claw subsystem.
      * We call its methods to manipulate the servos that it has within the subsystem. */
@@ -51,58 +53,67 @@ public class ClippingAuto extends OpMode {
 
     /** Start Pose of our robot */
 
+    private static DcMotor leftFront, leftBack, rightFront, rightBack, intakeMotor, rightSlidesMotor, leftSlidesMotor;
 
-    private final Pose startPose = new Pose(0, 12, Math.toRadians(0));
+    private Servo armRotate, leftIntake, rightIntake, linearSlides, grabby, rightSlideArm, leftSlideArm;
 
-    //my new pose
-    private final Pose goOut1Pose = new Pose(50, 13, Math.toRadians(0));
+    private final Pose startPose = new Pose(0, -12, Math.toRadians(0));
 
-    private final Pose getBlock1Pose = new Pose(50, 3, Math.toRadians(0));
+    private final Pose skibidiPose = new Pose(-26, -46, Math.toRadians(0));
 
-    private final Pose goIn1Pose = new Pose(10, 3, Math.toRadians(0));
+    private final Pose goOut1Pose = new Pose(-50, -13, Math.toRadians(0));
 
-    private final Pose goOut2Pose = new Pose(50, 3, Math.toRadians(0));
+    private final Pose getBlock1Pose = new Pose(-50, -1, Math.toRadians(0));
 
-    private final Pose getBlock2Pose = new Pose(50, -8, Math.toRadians(0));
+    private final Pose goIn1Pose = new Pose(-4, -3, Math.toRadians(0));
 
-    private final Pose goIn2Pose = new Pose(10, -8, Math.toRadians(0));
+    private final Pose goOut2Pose = new Pose(-50, -3, Math.toRadians(0));
 
-    private final Pose goOut3Pose = new Pose(50, -8, Math.toRadians(0));
+    private final Pose getBlock2Pose = new Pose(-50, 9, Math.toRadians(0));
 
-    private final Pose getBlock3Pose = new Pose(50, -11.75, Math.toRadians(0));
+    private final Pose goIn2Pose = new Pose(-4, 8, Math.toRadians(0));
 
-    private final Pose goIn3Pose = new Pose(10, -9.5, Math.toRadians(0));
+    private final Pose goOut3Pose = new Pose(-50, 8, Math.toRadians(0));
 
-    private final Pose getClip1Pose = new Pose(-7, 3, Math.toRadians(0));
+    private final Pose getBlock3Pose = new Pose(-50, 11.85, Math.toRadians(0));
 
-    private final Pose goClip1Pose = new Pose(-28, -40, Math.toRadians(0));
+    private final Pose goIn3Pose = new Pose(-4, 9.5, Math.toRadians(0));
 
-    private final Pose getClip2Pose = new Pose(7, -3, Math.toRadians(0));
+    private final Pose getClip1Pose = new Pose(-16, -13, Math.toRadians(0));
 
-    private final Pose goClip2Pose = new Pose(28, -42, Math.toRadians(0));
+    private final Pose goClip1Pose = new Pose(-26, -40, Math.toRadians(0));
 
-    private final Pose getClip3Pose = new Pose(7, -3, Math.toRadians(0));
+    private final Pose getClip2Pose = new Pose(-16, -13, Math.toRadians(0));
 
-    private final Pose goClip3Pose = new Pose(28, 48, Math.toRadians(0));
+    private final Pose goClip2Pose = new Pose(-26, -42, Math.toRadians(0));
 
+    private final Pose getClip3Pose = new Pose(-16, -13, Math.toRadians(0));
+
+    private final Pose goClip3Pose = new Pose(-26, -48, Math.toRadians(0));
+
+    private final Pose parkPose = new Pose(-26, -48, Math.toRadians(0));
+
+    private final Pose parkControlPose = new Pose(-26, -48, Math.toRadians(0));
     private Path scorePreload, park;
-    private PathChain goOut1, getBlock1, goIn1, goOut2, getBlock2, goIn2, goOut3, getBlock3, goIn3, getClip1, goClip1, getClip2, goClip2, getClip3, goClip3;
+    private PathChain skibidi, goOut1, getBlock1, goIn1, goOut2, getBlock2, goIn2, goOut3, getBlock3, goIn3, getClip1, goClip1, getClip2, goClip2, getClip3, goClip3;
 
     public static boolean checkWithinOneInch(double currentX, double targetX, double currentY, double targetY) {
         double distance = Math.sqrt(Math.pow(currentX - targetX, 2) + Math.pow(currentY - targetY, 2));
-        return distance <= 2.0;
+        return distance <= 1.0;
     }
 
 
 
 
     public void buildPaths() {
+        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(startPose)));
+        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), startPose.getHeading());
 
 
-
-
-        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(goOut1Pose)));
-        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), goOut1Pose.getHeading());
+        skibidi = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(startPose), new Point(skibidiPose)))
+                .setLinearHeadingInterpolation(startPose.getHeading(), skibidiPose.getHeading())
+                .build();
 
         goOut1 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(goOut1Pose)))
@@ -179,11 +190,47 @@ public class ClippingAuto extends OpMode {
                 .setLinearHeadingInterpolation(getClip3Pose.getHeading(), goClip3Pose.getHeading())
                 .build();
 
+        park = new Path(new BezierCurve(new Point(getClip3Pose), /* Control Point */ new Point(parkControlPose), new Point(parkPose)));
+        park.setLinearHeadingInterpolation(getClip3Pose.getHeading(), parkPose.getHeading());
+
+
+
 
 
     }
 
     public void autonomousPathUpdate() {
+
+        leftFront = hardwareMap.dcMotor.get("frontLeft");
+        leftBack = hardwareMap.dcMotor.get("backLeft");
+        rightFront = hardwareMap.dcMotor.get("frontRight");
+        rightBack = hardwareMap.dcMotor.get("backRight");
+        intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
+        rightSlidesMotor = hardwareMap.dcMotor.get("rightSlidesMotor");
+        leftSlidesMotor = hardwareMap.dcMotor.get("leftSlidesMotor");
+
+        grabby = hardwareMap.servo.get("grabby");
+
+
+        linearSlides = hardwareMap.servo.get("linearSlides");
+        armRotate = hardwareMap.servo.get("armServo");
+        leftIntake = hardwareMap.servo.get("leftIntake");
+        rightIntake = hardwareMap.servo.get("rightIntake");
+        rightSlideArm = hardwareMap.servo.get("rightSlideArm");
+        leftSlideArm = hardwareMap.servo.get("leftSlideArm");
+
+
+        rightSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightSlidesMotor.setTargetPosition(-20);
+        rightSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftSlidesMotor.setTargetPosition(-20);
+        leftSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightSlidesMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightIntake.setDirection(Servo.Direction.REVERSE);
+        rightSlideArm.setDirection(Servo.Direction.REVERSE);
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        leftBack.setDirection(DcMotor.Direction.REVERSE);
 
 
 
@@ -193,61 +240,74 @@ public class ClippingAuto extends OpMode {
                 setPathState(1);
                 break;
             case 1:
-
-
-                if (checkWithinOneInch(follower.getPose().getX(), goOut1Pose.getX(), follower.getPose().getY(), goOut1Pose.getY())) {
+                if (checkWithinOneInch(follower.getPose().getX(), skibidiPose.getX(), follower.getPose().getY(), skibidiPose.getY())) {
                     setPathState(2);
                 } else {
-                    follower.followPath(goOut1, true);
+                    leftSlideArm.setPosition(.25);
+                    rightSlideArm.setPosition(.25);
+                    armRotate.setPosition(.54);
+                    rightSlidesMotor.setTargetPosition(-5);
+                    leftSlidesMotor.setTargetPosition(-20);
+                    follower.followPath(skibidi, true);
 
                 }
                 break;
             case 2:
 
 
+                if (checkWithinOneInch(follower.getPose().getX(), goOut1Pose.getX(), follower.getPose().getY(), goOut1Pose.getY())) {
+                    setPathState(3);
+                } else {
+                    follower.followPath(goOut1, true);
+
+                }
+                break;
+            case 3:
+
+
 
                 if (checkWithinOneInch(follower.getPose().getX(), getBlock1Pose.getX(), follower.getPose().getY(), getBlock1Pose.getY())) {
-                    setPathState(3);
+                    setPathState(4);
                     break;
                 } else {
                     follower.followPath(getBlock1, true);
 
                 }
                 break;
-            case 3:
+            case 4:
 
                 if (checkWithinOneInch(follower.getPose().getX(), goIn1Pose.getX(), follower.getPose().getY(), goIn1Pose.getY())) {
-                    setPathState(4);
+                    setPathState(5);
                     break;
                 } else {
                     follower.followPath(goIn1, true);
 
                 }
                 break;
-            case 4:
+            case 5:
 
                 if (checkWithinOneInch(follower.getPose().getX(), goOut2Pose.getX(), follower.getPose().getY(), goOut2Pose.getY())) {
-                    setPathState(5);
+                    setPathState(6);
                     break;
                 } else {
                     follower.followPath(goOut2, true);
 
                 }
                 break;
-            case 5:
+            case 6:
 
                 if (checkWithinOneInch(follower.getPose().getX(), getBlock2Pose.getX(), follower.getPose().getY(), getBlock2Pose.getY())) {
-                    setPathState(6);
+                    setPathState(7);
                     break;
                 } else {
                     follower.followPath(getBlock2, true);
 
                 }
                 break;
-            case 6:
+            case 7:
 
                 if (checkWithinOneInch(follower.getPose().getX(), goIn2Pose.getX(), follower.getPose().getY(), goIn2Pose.getY())) {
-                    setPathState(7);
+                    setPathState(8);
                     break;
                 } else {
                     follower.followPath(goIn2, true);
@@ -255,10 +315,10 @@ public class ClippingAuto extends OpMode {
                 }
 
                 break;
-            case 7:
+            case 8:
 
                 if (checkWithinOneInch(follower.getPose().getX(), goOut3Pose.getX(), follower.getPose().getY(), goOut3Pose.getY())) {
-                    setPathState(8);
+                    setPathState(9);
                     break;
                 } else {
                     follower.followPath(goOut3, true);
@@ -266,10 +326,10 @@ public class ClippingAuto extends OpMode {
                 }
 
                 break;
-            case 8:
+            case 9:
 
                 if (checkWithinOneInch(follower.getPose().getX(), getBlock3Pose.getX(), follower.getPose().getY(), getBlock3Pose.getY())) {
-                    setPathState(9);
+                    setPathState(10);
                     break;
                 } else {
                     follower.followPath(getBlock3, true);
@@ -277,10 +337,10 @@ public class ClippingAuto extends OpMode {
                 }
 
                 break;
-            case 9:
+            case 10:
 
                 if (checkWithinOneInch(follower.getPose().getX(), goIn3Pose.getX(), follower.getPose().getY(), goIn3Pose.getY())) {
-                    setPathState(10);
+                    setPathState(11);
                     break;
                 } else {
                     follower.followPath(goIn3, true);
@@ -288,10 +348,10 @@ public class ClippingAuto extends OpMode {
                 }
 
                 break;
-            case 10:
+            case 11:
 
                 if (checkWithinOneInch(follower.getPose().getX(), getClip1Pose.getX(), follower.getPose().getY(), getClip1Pose.getY())) {
-                    setPathState(11);
+                    setPathState(12);
                     break;
                 } else {
                     follower.followPath(getClip1, true);
@@ -300,10 +360,10 @@ public class ClippingAuto extends OpMode {
                 }
 
                 break;
-            case 11:
+            case 12:
 
                 if (checkWithinOneInch(follower.getPose().getX(), goClip1Pose.getX(), follower.getPose().getY(), goClip1Pose.getY())) {
-                    setPathState(12);
+                    setPathState(13);
                     break;
                 } else {
                     follower.followPath(goClip1, true);
@@ -311,10 +371,10 @@ public class ClippingAuto extends OpMode {
                 }
 
                 break;
-            case 12:
+            case 13:
 
                 if (checkWithinOneInch(follower.getPose().getX(), getClip2Pose.getX(), follower.getPose().getY(), getClip2Pose.getY())) {
-                    setPathState(13);
+                    setPathState(14);
                     break;
                 } else {
                     follower.followPath(getClip2, true);
@@ -322,10 +382,10 @@ public class ClippingAuto extends OpMode {
                 }
 
                 break;
-            case 13:
+            case 14:
 
                 if (checkWithinOneInch(follower.getPose().getX(), goClip2Pose.getX(), follower.getPose().getY(), goClip2Pose.getY())) {
-                    setPathState(14);
+                    setPathState(15);
                     break;
                 } else {
                     follower.followPath(goClip2, true);
@@ -333,10 +393,10 @@ public class ClippingAuto extends OpMode {
                 }
 
                 break;
-            case 14:
+            case 15:
 
                 if (checkWithinOneInch(follower.getPose().getX(), getClip3Pose.getX(), follower.getPose().getY(), getClip3Pose.getY())) {
-                    setPathState(15);
+                    setPathState(16);
                     break;
                 } else {
                     follower.followPath(getClip3, true);
@@ -344,10 +404,10 @@ public class ClippingAuto extends OpMode {
                 }
 
                 break;
-            case 15:
+            case 16:
 
                 if (checkWithinOneInch(follower.getPose().getX(), goClip3Pose.getX(), follower.getPose().getY(), goClip3Pose.getY())) {
-                    setPathState(16);
+                    setPathState(17);
                     break;
                 } else {
                     follower.followPath(goClip3, true);
@@ -355,6 +415,14 @@ public class ClippingAuto extends OpMode {
                 }
 
                 break;
+            case 17:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(checkWithinOneInch(follower.getPose().getX(), parkPose.getX(), follower.getPose().getY(), parkPose.getY())) {
+                    setPathState(-1);
+                    break;
+                } else {
+                    follower.followPath(goClip3, true);
+                }
         }
     }
 
@@ -368,15 +436,13 @@ public class ClippingAuto extends OpMode {
     @Override
     public void loop() {
 
-        leftIntake = hardwareMap.servo.get("leftIntake");
-        rightIntake = hardwareMap.servo.get("rightIntake");
 
         // These loop the movements of the robot
         follower.update();
         autonomousPathUpdate();
 
         claw.linearSlidesIn();
-        claw.intakeUp();
+        claw.intakeDown();
 
 
         if (checkWithinOneInch(follower.getPose().getX(), goOut1Pose.getX(), follower.getPose().getY(), goOut1Pose.getY())) {

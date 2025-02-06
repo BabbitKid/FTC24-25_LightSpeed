@@ -116,17 +116,20 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
 
             //slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);   //////////////////////////////////////////////////
             //slideMotor.setPower(.75);
+            leftJoystickX = gamepad1.left_stick_x;
+            leftJoystickY = gamepad1.left_stick_y;
+            rightJoystickX = gamepad1.right_stick_x;
+            rightJoystickY = gamepad1.right_stick_y;
 
-
-            double leftJoystickX = gamepad1.left_stick_x;  // Flip strafing direction
+            double leftJoystickX = -gamepad1.left_stick_x;  // Keep strafing direction normal
             double leftJoystickY = -gamepad1.left_stick_y;  // Keep forward/backward correct
             double rightJoystickX = gamepad1.right_stick_x; // Keep rotation correct
 
-            // Fix strafing issue by flipping right-side strafing calculation
-            double leftFrontPower = leftJoystickY + leftJoystickX + rightJoystickX;
-            double rightFrontPower = leftJoystickY + leftJoystickX - rightJoystickX; // Flip leftJoystickX
-            double leftBackPower = leftJoystickY - leftJoystickX + rightJoystickX;
-            double rightBackPower = leftJoystickY - leftJoystickX - rightJoystickX; // Flip leftJoystickX
+// Adjust motor calculations: Flip leftJoystickX for the left-side motors
+            double leftFrontPower = leftJoystickY - leftJoystickX + rightJoystickX; // Flipped strafing
+            double rightFrontPower = leftJoystickY + leftJoystickX - rightJoystickX;
+            double leftBackPower = leftJoystickY + leftJoystickX + rightJoystickX;  // Flipped strafing
+            double rightBackPower = leftJoystickY - leftJoystickX - rightJoystickX;
 
 
             double[] wheelPower = {Math.abs(leftFrontPower), Math.abs(leftBackPower), Math.abs(rightFrontPower), Math.abs(rightBackPower)};
@@ -200,9 +203,6 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
                 rightSlideArm.setPosition(.1);
                 armRotate.setPosition(.90);
             }
-            if (gamepad2.dpad_right) {
-                armRotate.setPosition(0);
-            }
 
             /**
 
@@ -248,8 +248,13 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
             if (gamepad2.right_bumper) {
                 rightSlidesMotor.setPower(.8);
                 leftSlidesMotor.setPower(.8);
-                rightSlidesMotor.setTargetPosition(-3250);
-                leftSlidesMotor.setTargetPosition(-3250);
+                rightSlidesMotor.setTargetPosition(-3350);
+                leftSlidesMotor.setTargetPosition(-3350);
+                leftSlideArm.setPosition(.2);
+                rightSlideArm.setPosition(.2);
+                armRotate.setPosition(.45);
+
+
             }
 
             if (gamepad2.left_bumper) {
@@ -264,7 +269,7 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
                     linearSlides.setPosition(.2);
                 }
                 if (gamepad2.dpad_down) {
-                    linearSlides.setPosition(.70);
+                    linearSlides.setPosition(.75);
                 }
 
 
@@ -283,8 +288,8 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
                     grabby.setPosition(.6);
                 }
                 if (gamepad1.dpad_up) {
-                    leftIntake.setPosition(.15);
-                    rightIntake.setPosition(.15);
+                    leftIntake.setPosition(0);
+                    rightIntake.setPosition(0);
                 }
                 if (gamepad1.dpad_down) {
                     leftIntake.setPosition(.47);
