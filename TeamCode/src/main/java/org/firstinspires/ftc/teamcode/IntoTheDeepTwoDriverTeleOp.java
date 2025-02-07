@@ -292,8 +292,8 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
                     rightIntake.setPosition(0);
                 }
                 if (gamepad1.dpad_down) {
-                    leftIntake.setPosition(.47);
-                    rightIntake.setPosition(.47);
+                    leftIntake.setPosition(.45);
+                    rightIntake.setPosition(.45);
                 }
 
 
@@ -303,8 +303,8 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
 
                 //////////////////////////////////////////////////////////////////////////////////////
 
-                telemetry.addData("servo pos", leftIntake.getPosition());
-                telemetry.addData("servo pos", rightIntake.getPosition());
+                telemetry.addData("servo pos left", leftIntake.getPosition());
+                telemetry.addData("servo pos right", rightIntake.getPosition());
                 telemetry.addData("slidesPosRight", rightSlidesMotor.getCurrentPosition());
                 telemetry.addData("slidesPosLeft", leftSlidesMotor.getCurrentPosition());
                 telemetry.update();

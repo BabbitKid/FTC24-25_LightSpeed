@@ -3,7 +3,11 @@ package org.firstinspires.ftc.teamcode.opmode.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.teamcode.config.subsystem.ClawSubsystem;
+import org.firstinspires.ftc.teamcode.config.subsystem.bucketScoreSubsystem;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.*;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
@@ -32,10 +36,15 @@ public class BucketAuto extends OpMode {
     /** This is the variable where we store the state of our auto.
      * It is used by the pathUpdate method. */
     private int pathState;
+    public bucketScoreSubsystem bucket;
+    public ClawSubsystem claw;
+    private static DcMotor leftFront, leftBack, rightFront, rightBack, intakeMotor, rightSlidesMotor, leftSlidesMotor;
+    private Servo armRotate, leftIntake, rightIntake, linearSlides, grabby, rightSlideArm, leftSlideArm;
+
 
     /** This is our claw subsystem.
      * We call its methods to manipulate the servos that it has within the subsystem. */
-    public ClawSubsystem claw;
+
 
     /** Create and Define Poses + Paths
      * Poses are built with three constructors: x, y, and heading (in Radians).
@@ -49,7 +58,7 @@ public class BucketAuto extends OpMode {
     /** Start Pose of our robot */
     private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
 
-    private final Pose scoreBucketPose = new Pose(4, 28, Math.toRadians(-45));
+    private final Pose scoreBucketPose = new Pose(5.5, 25, Math.toRadians(-45));
 
     private final Pose scoreFinalBucketPose = new Pose(15, 19, Math.toRadians(-45));
 
@@ -105,11 +114,13 @@ public class BucketAuto extends OpMode {
         scoreBucketPre = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(scoreBucketPose)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scoreBucketPose.getHeading())
+             //   .setPathEndTimeoutConstraint(11) // Timeout for the entire chain
                 .build();
 
         alignStraightPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scoreBucketPose), new Point(alignStraight1)))
                 .setLinearHeadingInterpolation(scoreBucketPose.getHeading(), alignStraight1.getHeading())
+          //      .setPathEndTimeoutConstraint(11) // Timeout for the entire chain
                 .build();
 
         getBlock1 = follower.pathBuilder()
@@ -150,6 +161,31 @@ public class BucketAuto extends OpMode {
     }
 
     public void autonomousPathUpdate() {
+        leftFront = hardwareMap.dcMotor.get("frontLeft");
+        leftBack = hardwareMap.dcMotor.get("backLeft");
+        rightFront = hardwareMap.dcMotor.get("frontRight");
+        rightBack = hardwareMap.dcMotor.get("backRight");
+        intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
+        grabby = hardwareMap.servo.get("grabby");
+
+
+        linearSlides = hardwareMap.servo.get("linearSlides");
+        armRotate = hardwareMap.servo.get("armServo");
+        leftIntake = hardwareMap.servo.get("leftIntake");
+        rightIntake = hardwareMap.servo.get("rightIntake");
+        rightSlideArm = hardwareMap.servo.get("rightSlideArm");
+        leftSlideArm = hardwareMap.servo.get("leftSlideArm");
+
+
+        rightSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightSlidesMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightIntake.setDirection(Servo.Direction.REVERSE);
+        rightSlideArm.setDirection(Servo.Direction.REVERSE);
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        leftBack.setDirection(DcMotor.Direction.REVERSE);
         switch (pathState) {
             case 0:
                 follower.followPath(scorePreload);
@@ -158,10 +194,17 @@ public class BucketAuto extends OpMode {
 
             case 1:
                 if (!follower.isBusy()){
+                    bucket.slidesToBucket();
                     follower.followPath(scoreBucketPre, true);
+              //      public void holdPoint(scoreBucketPre, double heading);
+ if (!bucket.slidesToBucket() == false){
+    boolean holdingPosition = true;
+} else
                     setPathState(2);
                 }
                 break;
+
+
             case 2:
                 if (!follower.isBusy()) {
                     follower.followPath(alignStraightPath, true);
@@ -182,6 +225,7 @@ public class BucketAuto extends OpMode {
                 break;
             case 5:
                 if (!follower.isBusy()){
+
                     follower.followPath(alignStraightPath2, true);
                     setPathState(6);
                 }
@@ -256,6 +300,7 @@ public class BucketAuto extends OpMode {
 
     @Override
     public void init() {
+
         pathTimer = new Timer();
         opmodeTimer = new Timer();
 
@@ -267,6 +312,7 @@ public class BucketAuto extends OpMode {
         buildPaths();
 
         claw = new ClawSubsystem(hardwareMap);
+        bucket = new bucketScoreSubsystem(hardwareMap);
 
     }
 

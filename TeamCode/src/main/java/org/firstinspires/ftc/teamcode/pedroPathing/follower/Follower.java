@@ -92,6 +92,9 @@ public class Follower {
     private boolean followingPathChain;
     private boolean holdingPosition;
     private boolean isBusy;
+
+
+
     private boolean reachedParametricPathEnd;
     private boolean holdPositionAtEnd;
     private boolean teleopDrive;
