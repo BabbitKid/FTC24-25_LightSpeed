@@ -21,6 +21,8 @@ public class ClawSubsystem {
 
     private DcMotor rightSlidesMotor, leftSlidesMotor, intakeMotor;
 
+
+
     /** This is the constructor for the subsystem, it maps the servos to the hardwareMap.
      * The device names should align with the configuration names on the driver hub.
      * To use this subsystem, we have to import this file, declare the subsystem (private ClawSubsystem claw;),
@@ -37,6 +39,13 @@ public class ClawSubsystem {
         rightSlidesMotor = hardwareMap.get(DcMotor.class, "rightSlidesMotor");
         leftSlidesMotor = hardwareMap.get(DcMotor.class, "leftSlidesMotor");
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
+
+        rightSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightSlidesMotor.setTargetPosition(0);
+        rightSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftSlidesMotor.setTargetPosition(0);
+        leftSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
     }
 
@@ -62,6 +71,8 @@ public class ClawSubsystem {
     public double getIntakeMotor(){return intakeMotor.getCurrentPosition();}
 
     //------------------------------New Claw------------------------------//
+
+
 
     /**
 
@@ -96,18 +107,19 @@ public class ClawSubsystem {
         rightSlidesMotor.setTargetPosition(RobotConstants.slidesDown);
         leftSlidesMotor.setTargetPosition(RobotConstants.slidesDown);
     }
-    public void readyClip() {
-        leftSlideArm.setPosition(.25);
-        rightSlideArm.setPosition(.25);
-        armRotate.setPosition(.54);
-        rightSlidesMotor.setTargetPosition(-5);
-        leftSlidesMotor.setTargetPosition(-20);
-    }
-    public void clip(){
+
+    public void slidesUpForClip() {
         rightSlidesMotor.setPower(.8);
         leftSlidesMotor.setPower(.8);
         rightSlidesMotor.setTargetPosition(-700);
         leftSlidesMotor.setTargetPosition(-700);
+    }
+    public void readyClip() {
+        leftSlideArm.setPosition(.25);
+        rightSlideArm.setPosition(.25);
+        armRotate.setPosition(.54);
+    }
+    public void clip(){
         leftSlideArm.setPosition(.1);
         rightSlideArm.setPosition(.1);
         armRotate.setPosition(.90);
@@ -116,9 +128,9 @@ public class ClawSubsystem {
         leftSlideArm.setPosition(.78);
         rightSlideArm.setPosition(.78);
         armRotate.setPosition(.60);
-        rightSlidesMotor.setTargetPosition(-5);
-        leftSlidesMotor.setTargetPosition(-20);
     }
+
+    // add slides up
 
     public void intakeIn() {intakeMotor.setPower(RobotConstants.intakeIn);}
 

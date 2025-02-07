@@ -39,7 +39,7 @@ public class NewClipping extends OpMode {
     private Servo armRotate, leftIntake, rightIntake, linearSlides, grabby, rightSlideArm, leftSlideArm;
     private final Pose startPose = new Pose(0, -12, Math.toRadians(0));
     private final Pose clipReadyPose = new Pose(-20, -46, Math.toRadians(0));
-    private final Pose clipPose = new Pose(-20, -46, Math.toRadians(0));
+    private final Pose clipPose = new Pose(-20.1, -46, Math.toRadians(0));
     private final Pose driveAfterClipPose = new Pose(-12, -46, Math.toRadians(0));
     private final Pose armDownAfterClipPose = new Pose(-12, -46, Math.toRadians(0));
 
@@ -60,6 +60,21 @@ public class NewClipping extends OpMode {
         clipReady = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(clipReadyPose)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), clipReadyPose.getHeading())
+                .build();
+
+        clip = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(clipReadyPose), new Point(clipPose)))
+                .setLinearHeadingInterpolation(clipReadyPose.getHeading(), clipPose.getHeading())
+                .build();
+
+        driveAfterClip = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(clipPose), new Point(driveAfterClipPose)))
+                .setLinearHeadingInterpolation(clipPose.getHeading(), driveAfterClipPose.getHeading())
+                .build();
+
+        armDownAfterClip = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(driveAfterClipPose), new Point(armDownAfterClipPose)))
+                .setLinearHeadingInterpolation(driveAfterClipPose.getHeading(), armDownAfterClipPose.getHeading())
                 .build();
 
     }
@@ -86,10 +101,8 @@ public class NewClipping extends OpMode {
 
 
         rightSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightSlidesMotor.setTargetPosition(-20);
         rightSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftSlidesMotor.setTargetPosition(-20);
         leftSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightSlidesMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rightIntake.setDirection(Servo.Direction.REVERSE);
@@ -101,43 +114,39 @@ public class NewClipping extends OpMode {
 
         switch (pathState) {
             case 0:
-                follower.followPath(scorePreload);
-                setPathState(1);
+                if (checkWithinOneInch(follower.getPose().getX(), startPose.getX(), follower.getPose().getY(), startPose.getY())) {
+                    setPathState(1);
+                } else {
+                    follower.followPath(scorePreload, true);
+
+                }
                 break;
             case 1:
-                if (checkWithinOneInch(follower.getPose().getX(), clipReadyPose.getX(), follower.getPose().getY(), clipReadyPose.getY())) {
-                    setPathState(2);
-                } else {
+                if (!follower.isBusy()) {
                     claw.readyClip();
                     follower.followPath(clipReady, true);
-
+                    setPathState(2);
                 }
                 break;
             case 2:
-                if (checkWithinOneInch(follower.getPose().getX(), clipPose.getX(), follower.getPose().getY(), clipPose.getY())) {
-                    setPathState(3);
-                } else {
+                if (!follower.isBusy()) {
                     claw.clip();
                     follower.followPath(clip, true);
-
+                    setPathState(3);
                 }
                 break;
             case 3:
-                if (checkWithinOneInch(follower.getPose().getX(), driveAfterClipPose.getX(), follower.getPose().getY(), driveAfterClipPose.getY())) {
-                    setPathState(4);
-                } else {
-                    follower.followPath(driveAfterClip, true);
+                if (!follower.isBusy()){
                     claw.readyClip();
-
+                    follower.followPath(driveAfterClip, true);
+                    setPathState(4);
                 }
                 break;
             case 4:
-                if (checkWithinOneInch(follower.getPose().getX(), armDownAfterClipPose.getX(), follower.getPose().getY(), armDownAfterClipPose.getY())) {
-                    setPathState(5);
-                } else {
+                if (!follower.isBusy()) {
                     claw.getClip();
                     follower.followPath(armDownAfterClip, true);
-
+                    setPathState(5);
                 }
                 break;
 
