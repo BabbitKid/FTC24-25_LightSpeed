@@ -165,8 +165,8 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
 
 
             if (gamepad2.x) { //go clip pos
-                leftSlideArm.setPosition(.25);
-                rightSlideArm.setPosition(.25);
+                leftSlideArm.setPosition(.2);
+                rightSlideArm.setPosition(.2);
                 armRotate.setPosition(.54);
                 rightSlidesMotor.setTargetPosition(-5);
                 leftSlidesMotor.setTargetPosition(-20);
@@ -179,17 +179,18 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
                 leftSlidesMotor.setTargetPosition(-20);
                 timer.reset();
                 while (opModeIsActive() && timer.seconds() < 1.5) {
-                    idle();
+                    rightSlideArm.setPosition(.87);
+                    leftSlideArm.setPosition(.87);
                 }
-                rightSlideArm.setPosition(.93);
-                leftSlideArm.setPosition(.93);
+                rightSlideArm.setPosition(.91);
+                leftSlideArm.setPosition(.91);
                 armRotate.setPosition(.61);
                 rightSlidesMotor.setTargetPosition(-5);
                 leftSlidesMotor.setTargetPosition(-20);
             }
             if (gamepad2.y) { //get clip pos
-                leftSlideArm.setPosition(.78);
-                rightSlideArm.setPosition(.78);
+                leftSlideArm.setPosition(.725);
+                rightSlideArm.setPosition(.725);
                 armRotate.setPosition(.60);
                 rightSlidesMotor.setTargetPosition(-5);
                 leftSlidesMotor.setTargetPosition(-20);
@@ -248,13 +249,11 @@ public class IntoTheDeepTwoDriverTeleOp extends LinearOpMode {
             if (gamepad2.right_bumper) {
                 rightSlidesMotor.setPower(.8);
                 leftSlidesMotor.setPower(.8);
-                rightSlidesMotor.setTargetPosition(-3350);
-                leftSlidesMotor.setTargetPosition(-3350);
+                rightSlidesMotor.setTargetPosition(-3500);
+                leftSlidesMotor.setTargetPosition(-3500);
                 leftSlideArm.setPosition(.2);
                 rightSlideArm.setPosition(.2);
                 armRotate.setPosition(.45);
-
-
             }
 
             if (gamepad2.left_bumper) {

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.config.subsystem;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -46,6 +47,11 @@ public class ClawSubsystem {
         leftSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftSlidesMotor.setTargetPosition(0);
         leftSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightSlidesMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightIntake.setDirection(Servo.Direction.REVERSE);
+        rightSlideArm.setDirection(Servo.Direction.REVERSE);
+
+
 
     }
 
@@ -103,17 +109,43 @@ public class ClawSubsystem {
 
     public void grabbyClose() {grabby.setPosition(RobotConstants.grabbyClose);}
 
-    public void slidesDown() {
-        rightSlidesMotor.setTargetPosition(RobotConstants.slidesDown);
-        leftSlidesMotor.setTargetPosition(RobotConstants.slidesDown);
-    }
 
-    public void slidesUpForClip() {
+    public boolean slidesUpForClip() throws InterruptedException {
         rightSlidesMotor.setPower(.8);
         leftSlidesMotor.setPower(.8);
         rightSlidesMotor.setTargetPosition(-700);
         leftSlidesMotor.setTargetPosition(-700);
+
+        Thread.sleep(1000);
+
+        if (rightSlidesMotor.getCurrentPosition() < -710 && rightSlidesMotor.getCurrentPosition() > -690) {
+            return true;
+        }
+        return false;
+
+
+    };
+    public void armRotateGrabby() {
+        armRotate.setPosition(.1);
     }
+
+    public boolean slidesDown() throws InterruptedException {
+        rightSlidesMotor.setPower(.8);
+        leftSlidesMotor.setPower(.8);
+        rightSlidesMotor.setTargetPosition(-20);
+        leftSlidesMotor.setTargetPosition(-20);
+
+        if (rightSlidesMotor.getCurrentPosition() > -15 && rightSlidesMotor.getCurrentPosition() < -25) {
+            return true;
+        }
+        return false;
+
+
+    };
+
+
+
+
     public void readyClip() {
         leftSlideArm.setPosition(.25);
         rightSlideArm.setPosition(.25);

@@ -38,6 +38,7 @@ public class BucketAuto extends OpMode {
     private int pathState;
     public bucketScoreSubsystem bucket;
     public ClawSubsystem claw;
+
     private static DcMotor leftFront, leftBack, rightFront, rightBack, intakeMotor, rightSlidesMotor, leftSlidesMotor;
     private Servo armRotate, leftIntake, rightIntake, linearSlides, grabby, rightSlideArm, leftSlideArm;
 
@@ -58,17 +59,17 @@ public class BucketAuto extends OpMode {
     /** Start Pose of our robot */
     private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
 
-    private final Pose scoreBucketPose = new Pose(5.5, 25, Math.toRadians(-45));
+    private final Pose scoreBucketPose = new Pose(2, 24, Math.toRadians(-45));
 
     private final Pose scoreFinalBucketPose = new Pose(15, 19, Math.toRadians(-45));
 
-    private final Pose getBlock1Pose = new Pose(29, 16, Math.toRadians(0));
+    private final Pose getBlock1Pose = new Pose(36, 12, Math.toRadians(0));
 
-    private final Pose getBlock2Pose = new Pose(29, 26, Math.toRadians(0));
+    private final Pose getBlock2Pose = new Pose(36, 25, Math.toRadians(0));
 
     private final Pose getBlock3Pose = new Pose(40, 19, Math.toRadians(90));
 
-    private final Pose alignStraight1 = new Pose (12,19, Math.toRadians(0));
+    private final Pose alignStraight1 = new Pose (12,12, Math.toRadians(0));
 
     private final Pose alignStraight2 = new Pose(12, 25);
 
@@ -160,32 +161,13 @@ public class BucketAuto extends OpMode {
 
     }
 
-    public void autonomousPathUpdate() {
-        leftFront = hardwareMap.dcMotor.get("frontLeft");
-        leftBack = hardwareMap.dcMotor.get("backLeft");
-        rightFront = hardwareMap.dcMotor.get("frontRight");
-        rightBack = hardwareMap.dcMotor.get("backRight");
-        intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
-        grabby = hardwareMap.servo.get("grabby");
-
-
-        linearSlides = hardwareMap.servo.get("linearSlides");
-        armRotate = hardwareMap.servo.get("armServo");
+    public void autonomousPathUpdate() throws InterruptedException {
         leftIntake = hardwareMap.servo.get("leftIntake");
         rightIntake = hardwareMap.servo.get("rightIntake");
-        rightSlideArm = hardwareMap.servo.get("rightSlideArm");
-        leftSlideArm = hardwareMap.servo.get("leftSlideArm");
-
-
-        rightSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightSlidesMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rightIntake.setDirection(Servo.Direction.REVERSE);
-        rightSlideArm.setDirection(Servo.Direction.REVERSE);
-        leftFront.setDirection(DcMotor.Direction.REVERSE);
-        leftBack.setDirection(DcMotor.Direction.REVERSE);
+        linearSlides = hardwareMap.servo.get("linearSlides");
+
+
         switch (pathState) {
             case 0:
                 follower.followPath(scorePreload);
@@ -197,61 +179,74 @@ public class BucketAuto extends OpMode {
                     bucket.slidesToBucket();
                     follower.followPath(scoreBucketPre, true);
               //      public void holdPoint(scoreBucketPre, double heading);
- if (!bucket.slidesToBucket() == false){
-    boolean holdingPosition = true;
-} else
+                if (!bucket.slidesToBucket() == false) {
+                    boolean holdingPosition = true;
+                } else
                     setPathState(2);
                 }
-                break;
 
+                break;
 
             case 2:
                 if (!follower.isBusy()) {
+                    bucket.slidesDown1();
                     follower.followPath(alignStraightPath, true);
                     setPathState(3);
                 }
                 break;
             case 3:
                 if (!follower.isBusy()){
+                    bucket.intakeRotate();
                     follower.followPath(getBlock1, true);
                     setPathState(4);
                 }
                 break;
             case 4:
                 if (!follower.isBusy()){
+                    bucket.grabberandintake();
                     follower.followPath(scoreBucket1, true);
                     setPathState(5);
                 }
                 break;
             case 5:
                 if (!follower.isBusy()){
-
+                    if (!bucket.slidesToBucket() == false) {
+                        boolean holdingPosition = true;
+                    } else
                     follower.followPath(alignStraightPath2, true);
                     setPathState(6);
                 }
                 break;
             case 6:
                 if (!follower.isBusy()){
+                    bucket.slidesDown1();
+                    bucket.intakeRotate();
                     follower.followPath(getBlock2, true);
                     setPathState(7);
                 }
                 break;
             case 7:
                 if (!follower.isBusy()){
+                    Thread.sleep(1000);
+                    bucket.grabberandintake();
                     follower.followPath(scoreBucket2, true);
-                    setPathState(-1);
+                    setPathState(8);
+                }
+                break;
+            case 8:
+                if (!follower.isBusy()){
+                    if (!bucket.slidesToBucket() == false) {
+                        boolean holdingPosition = true;
+                    } else
+                    follower.followPath(getBlock3, true);
+                    setPathState(9);
                 }
                 break;
             case 9:
                 if (!follower.isBusy()){
-                    follower.followPath(getBlock3, true);
-                    setPathState(8);
-                }
-                break;
-            case 10:
-                if (!follower.isBusy()){
+                    bucket.slidesDown1();
                     follower.followPath(scoreFinalBucket, true);
-                    setPathState(9);
+                    setPathState(10);
                 }
                 break;
         }
@@ -269,7 +264,11 @@ public class BucketAuto extends OpMode {
 
         // These loop the movements of the robot
         follower.update();
-        autonomousPathUpdate();
+        try {
+            autonomousPathUpdate();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         if (checkHeading(follower.getPose().getHeading(), getBlock1Pose.getHeading(), 7)){
             telemetry.addData("Working", pathState);
@@ -295,6 +294,9 @@ public class BucketAuto extends OpMode {
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
         telemetry.update();
+        leftIntake.setPosition(.45);
+        rightIntake.setPosition(.45);
+        linearSlides.setPosition(.75);
     }
 
 

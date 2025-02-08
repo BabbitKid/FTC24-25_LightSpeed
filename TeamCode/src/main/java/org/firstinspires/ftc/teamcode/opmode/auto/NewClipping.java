@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.config.RobotConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.*;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
@@ -38,14 +39,16 @@ public class NewClipping extends OpMode {
     private static DcMotor leftFront, leftBack, rightFront, rightBack, intakeMotor, rightSlidesMotor, leftSlidesMotor;
     private Servo armRotate, leftIntake, rightIntake, linearSlides, grabby, rightSlideArm, leftSlideArm;
     private final Pose startPose = new Pose(0, -12, Math.toRadians(0));
-    private final Pose clipReadyPose = new Pose(-20, -46, Math.toRadians(0));
-    private final Pose clipPose = new Pose(-20.1, -46, Math.toRadians(0));
-    private final Pose driveAfterClipPose = new Pose(-12, -46, Math.toRadians(0));
-    private final Pose armDownAfterClipPose = new Pose(-12, -46, Math.toRadians(0));
+    private final Pose rotateGrabbyPose = new Pose(0, -12, 0);
+    private final Pose clipReadyPose = new Pose(-26, -46, Math.toRadians(0));
+    private final Pose clipPose = new Pose(-26.1, -46, Math.toRadians(0));
+    private final Pose driveAfterClipPose = new Pose(-20, -46, Math.toRadians(0));
+    private final Pose openGrabbyPose = new Pose(-20, -46, Math.toRadians(0));
+    private final Pose armDownAfterClipPose = new Pose(-20, -46, Math.toRadians(0));
 
 
     private Path scorePreload, park;
-    private PathChain clipReady, clip, driveAfterClip, armDownAfterClip;
+    private PathChain rotateGrabby, clipReady, clip, driveAfterClip, openGrabby, armDownAfterClip;
 
     public static boolean checkWithinOneInch(double currentX, double targetX, double currentY, double targetY) {
         double distance = Math.sqrt(Math.pow(currentX - targetX, 2) + Math.pow(currentY - targetY, 2));
@@ -56,10 +59,15 @@ public class NewClipping extends OpMode {
         scorePreload = new Path(new BezierLine(new Point(startPose), new Point(startPose)));
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), startPose.getHeading());
 
+        rotateGrabby = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(startPose), new Point(rotateGrabbyPose)))
+                .setLinearHeadingInterpolation(startPose.getHeading(), rotateGrabbyPose.getHeading())
+                .build();
+
 
         clipReady = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(startPose), new Point(clipReadyPose)))
-                .setLinearHeadingInterpolation(startPose.getHeading(), clipReadyPose.getHeading())
+                .addPath(new BezierLine(new Point(rotateGrabbyPose), new Point(clipReadyPose)))
+                .setLinearHeadingInterpolation(rotateGrabbyPose.getHeading(), clipReadyPose.getHeading())
                 .build();
 
         clip = follower.pathBuilder()
@@ -72,6 +80,11 @@ public class NewClipping extends OpMode {
                 .setLinearHeadingInterpolation(clipPose.getHeading(), driveAfterClipPose.getHeading())
                 .build();
 
+        openGrabby = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(driveAfterClipPose), new Point(openGrabbyPose)))
+                .setLinearHeadingInterpolation(driveAfterClipPose.getHeading(), openGrabbyPose.getHeading())
+                .build();
+
         armDownAfterClip = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(driveAfterClipPose), new Point(armDownAfterClipPose)))
                 .setLinearHeadingInterpolation(driveAfterClipPose.getHeading(), armDownAfterClipPose.getHeading())
@@ -79,36 +92,9 @@ public class NewClipping extends OpMode {
 
     }
 
-    public void autonomousPathUpdate() {
-
-        leftFront = hardwareMap.dcMotor.get("frontLeft");
-        leftBack = hardwareMap.dcMotor.get("backLeft");
-        rightFront = hardwareMap.dcMotor.get("frontRight");
-        rightBack = hardwareMap.dcMotor.get("backRight");
-        intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
+    public void autonomousPathUpdate() throws InterruptedException {
         rightSlidesMotor = hardwareMap.dcMotor.get("rightSlidesMotor");
-        leftSlidesMotor = hardwareMap.dcMotor.get("leftSlidesMotor");
 
-        grabby = hardwareMap.servo.get("grabby");
-
-
-        linearSlides = hardwareMap.servo.get("linearSlides");
-        armRotate = hardwareMap.servo.get("armServo");
-        leftIntake = hardwareMap.servo.get("leftIntake");
-        rightIntake = hardwareMap.servo.get("rightIntake");
-        rightSlideArm = hardwareMap.servo.get("rightSlideArm");
-        leftSlideArm = hardwareMap.servo.get("leftSlideArm");
-
-
-        rightSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightSlidesMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightIntake.setDirection(Servo.Direction.REVERSE);
-        rightSlideArm.setDirection(Servo.Direction.REVERSE);
-        leftFront.setDirection(DcMotor.Direction.REVERSE);
-        leftBack.setDirection(DcMotor.Direction.REVERSE);
 
 
 
@@ -118,11 +104,18 @@ public class NewClipping extends OpMode {
                     setPathState(1);
                 } else {
                     follower.followPath(scorePreload, true);
-
                 }
                 break;
+           /** case 1:
+                if (!follower.isBusy()) {
+                    claw.grabbyClose();
+                    claw.armRotateGrabby();
+                    follower.followPath(clipReady, true);
+                    setPathState(2);
+                } */
             case 1:
                 if (!follower.isBusy()) {
+                    claw.grabbyClose();
                     claw.readyClip();
                     follower.followPath(clipReady, true);
                     setPathState(2);
@@ -130,23 +123,39 @@ public class NewClipping extends OpMode {
                 break;
             case 2:
                 if (!follower.isBusy()) {
+                    claw.grabbyClose();
                     claw.clip();
+                    claw.slidesUpForClip();
                     follower.followPath(clip, true);
-                    setPathState(3);
+                    if (!claw.slidesUpForClip() == false) {
+                        boolean holdingPosition = true;
+                    } else
+                        setPathState(3);
                 }
                 break;
             case 3:
                 if (!follower.isBusy()){
-                    claw.readyClip();
+                    claw.clip();
+                    claw.slidesUpForClip();
                     follower.followPath(driveAfterClip, true);
+                    claw.grabbyClose();
                     setPathState(4);
                 }
                 break;
             case 4:
                 if (!follower.isBusy()) {
-                    claw.getClip();
-                    follower.followPath(armDownAfterClip, true);
+                    claw.grabbyOpen();
+                    follower.followPath(openGrabby, true);
                     setPathState(5);
+                }
+                break;
+            case 5:
+                if (!follower.isBusy()) {
+                    claw.grabbyOpen();
+                    claw.getClip();
+                    claw.slidesDown();
+                    follower.followPath(armDownAfterClip, true);
+                    setPathState(6);
                 }
                 break;
 
@@ -166,10 +175,14 @@ public class NewClipping extends OpMode {
 
         // These loop the movements of the robot
         follower.update();
-        autonomousPathUpdate();
-
+        try {
+            autonomousPathUpdate();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         claw.linearSlidesIn();
         claw.intakeDown();
+
 
 
 
@@ -178,6 +191,7 @@ public class NewClipping extends OpMode {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("SlidesPos", rightSlidesMotor.getCurrentPosition());
         telemetry.update();
     }
 

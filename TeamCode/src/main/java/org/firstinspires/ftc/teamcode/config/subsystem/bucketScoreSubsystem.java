@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.config.subsystem;
 
+import static java.lang.Thread.onSpinWait;
+import static java.lang.Thread.sleep;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -31,24 +34,30 @@ public class bucketScoreSubsystem {
      * and then call the below constructor in the init() method. */
 
     public bucketScoreSubsystem(HardwareMap hardwareMap) {
-        armRotate = hardwareMap.get(Servo.class, "armServo");
-        leftIntake = hardwareMap.get(Servo.class, "leftIntake");
-        rightIntake = hardwareMap.get(Servo.class, "rightIntake");
-        linearSlides = hardwareMap.get(Servo.class, "linearSlides");
-        grabby = hardwareMap.get(Servo.class, "grabby");
-        rightSlideArm = hardwareMap.get(Servo.class, "rightSlideArm");
-        leftSlideArm = hardwareMap.get(Servo.class, "leftSlideArm");
-        rightSlidesMotor = hardwareMap.get(DcMotor.class, "rightSlidesMotor");
-        leftSlidesMotor = hardwareMap.get(DcMotor.class, "leftSlidesMotor");
-        intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
+
+        intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
+        rightSlidesMotor = hardwareMap.dcMotor.get("rightSlidesMotor");
+        leftSlidesMotor = hardwareMap.dcMotor.get("leftSlidesMotor");
+
+        grabby = hardwareMap.servo.get("grabby");
+
+
+        linearSlides = hardwareMap.servo.get("linearSlides");
+        armRotate = hardwareMap.servo.get("armServo");
+        leftIntake = hardwareMap.servo.get("leftIntake");
+        rightIntake = hardwareMap.servo.get("rightIntake");
+        rightSlideArm = hardwareMap.servo.get("rightSlideArm");
+        leftSlideArm = hardwareMap.servo.get("leftSlideArm");
+
 
         rightSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightSlidesMotor.setTargetPosition(0);
         rightSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftSlidesMotor.setTargetPosition(0);
         leftSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightSlidesMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightIntake.setDirection(Servo.Direction.REVERSE);
+        rightSlideArm.setDirection(Servo.Direction.REVERSE);
+
 
 
     }
@@ -104,46 +113,60 @@ public class bucketScoreSubsystem {
     }
 
 
+    public void grabbyClose() {grabby.setPosition(RobotConstants.grabbyClose);}
 
     public void slidesDown() {
         rightSlidesMotor.setTargetPosition(RobotConstants.slidesDown);
         leftSlidesMotor.setTargetPosition(RobotConstants.slidesDown);
     }
 
-    public boolean slidesToBucket() {
-        rightIntake.setPosition(.45);
-        leftIntake.setPosition(.45);
-        leftSlideArm.setPosition(.6);
-        rightSlideArm.setPosition(.6);
-        armRotate.setPosition(.35);
+    public boolean slidesToBucket() throws InterruptedException {
+        rightSlidesMotor.setTargetPosition(-2800);
+        leftSlidesMotor.setTargetPosition(-2800);
+        leftSlideArm.setPosition(.32);
+        rightSlideArm.setPosition(.32);
         rightSlidesMotor.setPower(.8);
         leftSlidesMotor.setPower(.8);
-        rightSlidesMotor.setTargetPosition(-2600);
-        leftSlidesMotor.setTargetPosition(-2600);
-        grabby.setPosition(.4);
+
+        Thread.sleep(2300);
+        armRotate.setPosition(.39);
+        Thread.sleep(800);
+        grabby.setPosition(.3); //Let block go
+        Thread.sleep(800);
+        leftSlideArm.setPosition(.87);
+        rightSlideArm.setPosition(.87);
 
 
-        if (rightSlidesMotor.isBusy()) {
+
+
+        if (rightSlidesMotor.getCurrentPosition() > -55 && rightSlidesMotor.getCurrentPosition() < -55) {
             return true;
         }
-       return false;
+        return false;
+
+
     };
-  /*  public void dropBlock() {
-        leftSlideArm.setPosition(.25);
-        rightSlideArm.setPosition(.25);
-        armRotate.setPosition(.54);
+   public void slidesDown1() {
+       rightSlidesMotor.setTargetPosition(-20);
+       leftSlidesMotor.setTargetPosition(-20);
+       rightSlidesMotor.setPower(.45);
+       leftSlidesMotor.setPower(.45);
+       leftSlideArm.setPosition(.87);
+       armRotate.setPosition(.61);
+   }
+    public void intakeRotate() throws InterruptedException{
+        rightSlideArm.setPosition(.9);
+        leftSlideArm.setPosition(.9);
+        armRotate.setPosition(.61);
+        intakeMotor.setPower(-1);
+
+
     }
-    public void clip(){
-        leftSlideArm.setPosition(.1);
-        rightSlideArm.setPosition(.1);
-        armRotate.setPosition(.90);
+    public void grabberandintake(){
+        grabby.setPosition(.6);
+        intakeMotor.setPower(0);
     }
-    public void getClip(){
-        leftSlideArm.setPosition(.78);
-        rightSlideArm.setPosition(.78);
-        armRotate.setPosition(.60);
-    }
-*/
+
     // add slides up
 
     public void intakeIn() {intakeMotor.setPower(RobotConstants.intakeIn);}
